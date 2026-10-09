@@ -1,4 +1,4 @@
-"""CLI: collect market metrics + news inventory; no causal news analysis."""
+"""CLI: collect market metrics + news inventory + official calendar; no causal news analysis."""
 
 from __future__ import annotations
 
@@ -28,6 +28,7 @@ from gold_monitor.report import build_daily_report
 from gold_monitor.indicators import compute_snapshot
 from gold_monitor.explain import data_quality_notes
 from gold_monitor.providers.base import MetricPoint
+from gold_monitor.calendar_collect import collect_calendar
 
 
 def _collect_daily() -> list[MetricPoint]:
@@ -56,11 +57,25 @@ def _collect_monthly_extras() -> list[MetricPoint]:
 def run_daily(report_date: str | None = None) -> int:
     report_date = report_date or date.today().isoformat()
     run_id = str(uuid.uuid4())[:8]
-    print(f"[gold-monitor] run_id={run_id} report_date={report_date} schema=v0.5")
+    print(f"[gold-monitor] run_id={run_id} report_date={report_date} schema=v0.8")
 
     metrics = _collect_daily()
     metrics.extend(_collect_weekly_extras())
     metrics.extend(_collect_monthly_extras())
+
+    calendar_path = None
+    calendar_payload = None
+    try:
+        cal = collect_calendar(root=Path("."))
+        calendar_path = cal["path"]
+        calendar_payload = cal["payload"]
+        st = calendar_payload.get("collection_stats") or {}
+        print(
+            f"[gold-monitor] calendar merged={st.get('merged_total')} "
+            f"upcoming_7d={st.get('upcoming_7d_count')} errors={st.get('errors')}"
+        )
+    except Exception as e:
+        print(f"[gold-monitor] calendar collect failed: {e}")
 
     news_result = None
     try:
@@ -91,7 +106,7 @@ def run_daily(report_date: str | None = None) -> int:
     qnotes = data_quality_notes(by_name, ind)
 
     daily_payload = {
-        "schema_version": "daily_v0.5",
+        "schema_version": "daily_v0.8",
         "run_id": run_id,
         "report_date": report_date,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -99,10 +114,11 @@ def run_daily(report_date: str | None = None) -> int:
         "status_summary": summarize_statuses(metrics),
         "indicators": ind,
         "news_ref": str(news_path),
+        "calendar_ref": calendar_path,
         "news_collection_stats": news_stats,
+        "calendar_stats": (calendar_payload or {}).get("collection_stats"),
         "data_quality_notes": qnotes,
-        "version": "0.5.0",
-        # legacy keys intentionally absent or null — no causal analysis
+        "version": "0.8.0",
         "analysis": None,
         "explanations": None,
         "events": None,
@@ -118,11 +134,14 @@ def run_daily(report_date: str | None = None) -> int:
         news_stats=news_stats,
         quality_notes=qnotes,
         news_json_path=str(news_path),
+        calendar_payload=calendar_payload,
     )
     md_path = write_report_md(report_date, md)
 
     print(f"Wrote {json_path}")
     print(f"Wrote {news_path}")
+    if calendar_path:
+        print(f"Wrote {calendar_path}")
     print(f"Wrote {md_path}")
     print("Status summary:", daily_payload["status_summary"])
     return 0
