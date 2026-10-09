@@ -1,7 +1,7 @@
 {
-  "run_id": "63f9f31d",
+  "run_id": "9b974f2a",
   "report_date": "2026-10-09",
-  "generated_at_utc": "2026-10-09T15:37:41.633688+00:00",
+  "generated_at_utc": "2026-10-09T16:12:31.722167+00:00",
   "metrics": [
     {
       "metric": "us_10y_real_yield",
@@ -10,7 +10,7 @@
       "source": "FRED",
       "source_url": "https://fred.stlouisfed.org/series/DFII10",
       "observation_date": "2026-10-07",
-      "fetched_at_utc": "2026-10-09T15:37:39.619796+00:00",
+      "fetched_at_utc": "2026-10-09T16:12:26.583600+00:00",
       "status": "ok",
       "notes": ""
     },
@@ -21,7 +21,7 @@
       "source": "FRED",
       "source_url": "https://fred.stlouisfed.org/series/DGS10",
       "observation_date": "2026-10-07",
-      "fetched_at_utc": "2026-10-09T15:37:39.826323+00:00",
+      "fetched_at_utc": "2026-10-09T16:12:26.741854+00:00",
       "status": "ok",
       "notes": ""
     },
@@ -32,20 +32,20 @@
       "source": "FRED",
       "source_url": "https://fred.stlouisfed.org/series/T10YIE",
       "observation_date": "2026-10-08",
-      "fetched_at_utc": "2026-10-09T15:37:40.317253+00:00",
+      "fetched_at_utc": "2026-10-09T16:12:26.972952+00:00",
       "status": "ok",
       "notes": ""
     },
     {
       "metric": "gold_xauusd",
-      "value": 4188.16,
+      "value": 4190.86,
       "unit": "USD/oz",
       "source": "goldprice.dev",
       "source_url": "https://api.goldprice.dev/v1/prices?symbol=XAU-USD-SPOT",
       "observation_date": "2026-10-09",
-      "fetched_at_utc": "2026-10-09T15:37:40.317280+00:00",
+      "fetched_at_utc": "2026-10-09T16:12:26.972974+00:00",
       "status": "ok",
-      "notes": "contract_type=spot; computed_at=2026-10-09T15:22:01.800285+00:00"
+      "notes": "contract_type=spot; computed_at=2026-10-09T15:57:01.164271+00:00"
     },
     {
       "metric": "etf_159934_close",
@@ -54,7 +54,7 @@
       "source": "Yahoo Finance",
       "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/159934.SZ?interval=1d&range=5d",
       "observation_date": "2026-10-09",
-      "fetched_at_utc": "2026-10-09T15:37:40.579938+00:00",
+      "fetched_at_utc": "2026-10-09T16:12:27.345030+00:00",
       "status": "ok",
       "notes": "exchange last/close; not fund NAV"
     },
@@ -65,18 +65,18 @@
       "source": "Yahoo Finance",
       "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/159934.SZ?interval=1d&range=5d",
       "observation_date": "2026-10-09",
-      "fetched_at_utc": "2026-10-09T15:37:40.579938+00:00",
+      "fetched_at_utc": "2026-10-09T16:12:27.345030+00:00",
       "status": "ok",
       "notes": "regularMarketChangePercent"
     },
     {
       "metric": "usd_cny",
-      "value": 6.6818,
+      "value": 6.682,
       "unit": "CNY per USD",
       "source": "Yahoo Finance",
       "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/CNY=X?interval=1d&range=5d",
       "observation_date": "2026-10-09",
-      "fetched_at_utc": "2026-10-09T15:37:40.658160+00:00",
+      "fetched_at_utc": "2026-10-09T16:12:27.409665+00:00",
       "status": "ok",
       "notes": "CNY=X last; offshore-ish FX quote via Yahoo"
     },
@@ -87,7 +87,7 @@
       "source": "CFTC via futuresbench",
       "source_url": "https://futuresbench.com/data/cot/gold.csv",
       "observation_date": "2026-09-29",
-      "fetched_at_utc": "2026-10-09T15:37:40.734991+00:00",
+      "fetched_at_utc": "2026-10-09T16:12:27.574462+00:00",
       "status": "ok",
       "notes": "positions as-of 2026-09-29; weekly COT; not same-day"
     },
@@ -98,7 +98,7 @@
       "source": "CFTC via futuresbench",
       "source_url": "https://futuresbench.com/data/cot/gold.csv",
       "observation_date": "2026-09-29",
-      "fetched_at_utc": "2026-10-09T15:37:40.734991+00:00",
+      "fetched_at_utc": "2026-10-09T16:12:27.574462+00:00",
       "status": "ok",
       "notes": "positions as-of 2026-09-29; weekly COT; not same-day"
     },
@@ -109,31 +109,31 @@
       "source": "CFTC via futuresbench",
       "source_url": "https://futuresbench.com/data/cot/gold.csv",
       "observation_date": "2026-09-29",
-      "fetched_at_utc": "2026-10-09T15:37:40.734991+00:00",
+      "fetched_at_utc": "2026-10-09T16:12:27.574462+00:00",
       "status": "ok",
       "notes": "positions as-of 2026-09-29; weekly COT; not same-day"
     },
     {
       "metric": "wgc_global_etf_holdings_t",
-      "value": 4256.0,
+      "value": null,
       "unit": "tonnes",
-      "source": "WGC manual CSV",
+      "source": "WGC",
       "source_url": "https://www.gold.org/goldhub/data/gold-etfs-holdings-and-flows",
-      "observation_date": "2026-09",
-      "fetched_at_utc": "2026-10-09T15:37:40.850143+00:00",
-      "status": "ok",
-      "notes": "example row from public WGC commentary Sep-2026; replace with official download"
+      "observation_date": null,
+      "fetched_at_utc": "2026-10-09T16:12:28.101890+00:00",
+      "status": "missing",
+      "notes": "暂无最新 WGC 自动数据；WGC 非每日硬依赖。勿将上月流量解释为今日流入。门户: https://www.gold.org/goldhub/data/gold-etfs-holdings-and-flows"
     },
     {
       "metric": "wgc_global_etf_flow_usd_mn",
-      "value": 9952.0,
+      "value": null,
       "unit": "USD million",
-      "source": "WGC manual CSV",
+      "source": "WGC",
       "source_url": "https://www.gold.org/goldhub/data/gold-etfs-holdings-and-flows",
-      "observation_date": "2026-09",
-      "fetched_at_utc": "2026-10-09T15:37:40.850143+00:00",
-      "status": "ok",
-      "notes": "example row from public WGC commentary Sep-2026; replace with official download"
+      "observation_date": null,
+      "fetched_at_utc": "2026-10-09T16:12:28.101890+00:00",
+      "status": "missing",
+      "notes": "暂无最新 WGC 自动数据；WGC 非每日硬依赖。勿将上月流量解释为今日流入。门户: https://www.gold.org/goldhub/data/gold-etfs-holdings-and-flows"
     },
     {
       "metric": "us_total_public_debt",
@@ -142,7 +142,7 @@
       "source": "FiscalData",
       "source_url": "https://fiscaldata.treasury.gov/datasets/debt-to-the-penny/debt-to-the-penny",
       "observation_date": "2026-10-07",
-      "fetched_at_utc": "2026-10-09T15:37:40.850475+00:00",
+      "fetched_at_utc": "2026-10-09T16:12:28.101916+00:00",
       "status": "ok",
       "notes": "debt_held_public=32439260138550.17; intragov=7844776008817.02"
     },
@@ -153,51 +153,452 @@
       "source": "FiscalData",
       "source_url": "https://fiscaldata.treasury.gov/datasets/interest-expense-debt-outstanding/",
       "observation_date": "2026-09-30",
-      "fetched_at_utc": "2026-10-09T15:37:41.261337+00:00",
+      "fetched_at_utc": "2026-10-09T16:12:28.683973+00:00",
       "status": "ok",
       "notes": "sum of fytd_expense_amt for latest record_date lines; monthly lag"
     }
   ],
   "status_summary": {
-    "ok": 14
+    "ok": 12,
+    "missing": 2
   },
   "indicators": {
     "gold_xauusd": {
-      "history_points": 0,
+      "history_points": 1,
       "chg_1d_pct": null,
       "chg_5d_pct": null
     },
     "us_10y_real_yield": {
-      "history_points": 0,
+      "history_points": 1,
       "chg_1d_pct": null,
       "chg_5d_pct": null
     },
     "us_10y_nominal_yield": {
-      "history_points": 0,
+      "history_points": 1,
       "chg_1d_pct": null,
       "chg_5d_pct": null
     },
     "usd_cny": {
-      "history_points": 0,
+      "history_points": 1,
       "chg_1d_pct": null,
       "chg_5d_pct": null
     }
   },
-  "explanations": [
+  "news": [
     {
-      "title": "原因未确认",
-      "support": "历史序列不足或涨跌与利率组合不匹配简单规则",
-      "counter": "—",
-      "confidence": "低",
-      "todo": "积累更多交易日数据后再比较"
+      "title": "Gold Price Forecast: XAU/USD Rebounds From $4,070 as Fed Pause Bets Clash With 5.3% Yields - FXLeaders",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxNTlFMalczTWEwNGNrUTRUT3cxSHRnRG9vdDVaQUlpbFB0bDVmOEZ3bVhFTnhfRU1ySmRXT0gtN3NCcy1wWWlYcmliVUczYUdTeUFKcEQtS29ubHFsSFIxcTJnd3kzUkVkbWFRNW40c0VZUmt4b3YyMmJQU0phSTVaamJieE0zdEI3dW5YM0Vac3FRU2ZKY2VB?oc=5",
+      "published_at": "2026-10-08T05:45:07+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Gold Price Forecast: XAU/USD Rebounds From $4,070 as Fed Pause Bets Clash With 5.3% Yields &nbsp;&nbsp; FXLeaders",
+      "entities": [
+        "Fed"
+      ],
+      "relevance_to_gold": 5,
+      "sentiment": "neutral",
+      "tier": 2
     },
     {
-      "title": "COT 投机净多头背景（周度，非当日）",
-      "support": "最新 COT 净非商业持仓约 218,632 手",
-      "counter": "COT 有发布滞后，不能解释今日分钟级波动",
-      "confidence": "低",
-      "todo": "与前值比较拥挤度"
+      "title": "Gold (XAUUSD) & Silver Price Forecast: Fed Minutes Weigh, Can Gold Hold $4,100? - FXEmpire",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxNSjJBWVNRM2ZvTEIxS1ZZTVlrdDRkVzFvNFdpN2JCZ25iUEZ1a0h5SUZUSlJhZG1KVjcxeDlTSWhCOURpUkh2ajk0T0d5elhIaFB4eENjT3VHamhVR194V2xleGxHNlpoUVVrQ0p6THByQUEzWUdvUXlNUWxSN29xdTlXUUdsQjg5M0F5ZGgzOUQ4VUtEVVZ0SlBnU09nd2lQSUhXcTJub2N3b3hTTGM0cWdpcXNHWGVseWNGZHRn?oc=5",
+      "published_at": "2026-10-08T06:41:07+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Gold (XAUUSD) & Silver Price Forecast: Fed Minutes Weigh, Can Gold Hold $4,100? &nbsp;&nbsp; FXEmpire",
+      "entities": [
+        "Fed"
+      ],
+      "relevance_to_gold": 5,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Gold price today, Thursday, October 8, 2026: Yearly gold gains evaporate after Fed says higher rates are expected - Yahoo Finance",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMikwJBVV95cUxNdDJiR3pYcXZxSmh5NmtiVmZtWUxLRXl0TkZIZEQySDhFSGdzSTdUSGtYVzljYjVPM0kzY0dlZGV2U002cnRDVS04ZTJSd2hFeGJaOVlqVUlWLS1mX3VWU09RU3Bka1dJMWljRVQ5cU1CclZCR1JZLURFWkVPNXFVd2dLNTlCbk5HanBRUXM3VEdxRFp4R0Znb0RqVHlvSzFZWEpjTkpqZ2FiNGVLNENTNVMtS0ZyLUM1SzBCLWVJcy11dkM0RGZOV2VMcF9mRV9rQ2JoTjBCaWFUZ2ZpLWgzZURrNGEydWxxMnk5bzVoa0Z1TGNmZXl1M0sybTcxSHY1ZlFNOTlrV3JkcUx2MWtPNUljZw?oc=5",
+      "published_at": "2026-10-08T10:53:09+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Gold price today, Thursday, October 8, 2026: Yearly gold gains evaporate after Fed says higher rates are expected &nbsp;&nbsp; Yahoo Finance",
+      "entities": [
+        "Fed"
+      ],
+      "relevance_to_gold": 5,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Gold Analysis: Fed Minutes Keep Pressure on XAU/USD - FOREX.com",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxNbG5LTlYxdkhBaDRQV0x3M21aU2xESEFrR0FCc0NZSFZuZTZLSGxTX0xzMTIzNFhCV2d6bkRNTFpJSHFvOWNTWHlsZTJ0c1AxZTBiVTM5YlRnak1qZ3N5SWFxWktKQWo5eFM4ZTRlTzlWRGNrbFdUOUN2Ujc2WmItWE1icjYzVmtRQnJPUW5tVEM4RUpPRm1nSFQ3VWFCUQ?oc=5",
+      "published_at": "2026-10-08T13:56:16+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Gold Analysis: Fed Minutes Keep Pressure on XAU/USD &nbsp;&nbsp; FOREX.com",
+      "entities": [
+        "Fed"
+      ],
+      "relevance_to_gold": 5,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Gold Just Fell to a Two-Month Low as the Fed Signals Another Hike - 24/7 Wall St.",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxNLVJpUHJYMFdZdlA3V1pzbDZiMW9jS3ctWU9ZeUw3eGI4b21Mc01LeWFqQzR5MWF4WFdHS1hzQTM3QjRIUVVtUXN1UG03WG51RUJKd0dRN1RGTjFLVU9GSkk1VlRoYW1HM3BSQVVQRXo4TlYwQXRqdXBNVDZfdEc3Q1Bqam9NLW85bW5ZRXlvZWpHSk1jR1lwdG15UWVtMC13TDZQWllzbHB0TzFDOHc?oc=5",
+      "published_at": "2026-10-08T14:45:00+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Gold Just Fell to a Two-Month Low as the Fed Signals Another Hike &nbsp;&nbsp; 24/7 Wall St.",
+      "entities": [
+        "Fed"
+      ],
+      "relevance_to_gold": 5,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Gold Oil Price Shock: Why Real Yields Beat the Hormuz Surge - GoldSilver",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxPZmdiNnhZeGxsX3hnMW95cU1QMi1YNXhqamR3RlhVMW5KQ0JkdXFfWWJIZS1INC1DZ0ptdzNKS0s1Q2dyX1NhVU8zTllJbmhFenhoYnRVb0x3cXFQQktLV0xHVS1NR21CNXpESjR4R0hoYzFwcUFHTmZ3QklsUG9lemhaeWwydndvU25EVVliX2FvYjh1STAyN191c2sybWVuSExsNmREWQ?oc=5",
+      "published_at": "2026-10-08T16:22:53+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold_geo",
+      "summary": "Gold Oil Price Shock: Why Real Yields Beat the Hormuz Surge &nbsp;&nbsp; GoldSilver",
+      "entities": [
+        "Hormuz"
+      ],
+      "relevance_to_gold": 5,
+      "sentiment": "bullish_gold",
+      "tier": 2
+    },
+    {
+      "title": "Gold gains on geopolitics as Fed hike bets shift to December - www.tmgm.com",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxNUE0yTEdIT3h1SFRpa0ZPUEJmS2x4YVRkR3ZEc29vOTRJZ3BTbVlMMXpiWW1OWW1nTklwVF84MkdsUllvV3FmX0ttTGFJRnpHMEdTZ0VTSzh5cWRPMU0wVmVFQzJRT0FiM04tSlRycmVxc3JOcUNPRHM3SUxlMTdhV0lxUnF6T21ma3hCY0pBT19ncmZUUDFVZ0RmZk9PQk1wcFRxaGM0UzZGS3hOSExLS1FnX0VtY1E4RGp1VkxYbUJ1YUVr?oc=5",
+      "published_at": "2026-10-08T22:22:53+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold_geo",
+      "summary": "Gold gains on geopolitics as Fed hike bets shift to December &nbsp;&nbsp; www.tmgm.com",
+      "entities": [
+        "Fed"
+      ],
+      "relevance_to_gold": 5,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Gold gains ground to near $4,150 as traders weigh Fed rate path - FXStreet",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPZGdScjl3cXlSTGduRE5WVnd0V2ZueUVOMkFhbkJoTUpwRXpEY1FuTWVhVzNDRFlmeUtrX3h2MWdtcEVsSmg5eFFQVlk4TzZ5MnZBeG12WndmR28tYVhoZ3UxVjhqWWE4NFQtb1cycm9EU3d5UXNDUmZ5SGY2YkpSclpGY3hkWS14dnhHT2ZOLURkV0FSLTZUZjNqZmc0dnVVYUlvdng0RnM?oc=5",
+      "published_at": "2026-10-08T23:21:26+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Gold gains ground to near $4,150 as traders weigh Fed rate path &nbsp;&nbsp; FXStreet",
+      "entities": [
+        "Fed"
+      ],
+      "relevance_to_gold": 5,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Gold Price Forecast: XAU/USD looks to regain $4,200 amid pre-US CPI repositioning - FXStreet",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxPMEdBME9NaTZ0Q2NFek92VlFtV2dFMjNPSW5UXzNNOU9RTlZpMEY1OXBMdjV1Rk1CbzdvN2EyNDhEOURJUzVLbVpZVFNGRC14SHNlVUpWU2xTUlFxVW1YeEZWTUdxZVhjTGhVa1M4aUw4M2ZlUUVlRnhsWkxCM0dwWHpwSVFCXzNKTHpfcGtndk1ERXk5WDNKU2N5YVBCVDFscTBRMFdDN05jcHBPeWJWVGRMMVlUeTNJT2VhSmowMGlnODBM?oc=5",
+      "published_at": "2026-10-09T03:27:12+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Gold Price Forecast: XAU/USD looks to regain $4,200 amid pre-US CPI repositioning &nbsp;&nbsp; FXStreet",
+      "entities": [],
+      "relevance_to_gold": 5,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Gold Prices Rise 1.5% as Dollar and US Treasury Yields Retreat - Yahoo Finance",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxNTGp4b3pEMHBIX1JmZ2J6Q3NDWGpyMm4wcWZZcWJOaUpSSlFzZmU1X0dlazg5Z0txMXJId0o4N1g1VnFuU0FKZkxZMUFfVzRHV0gzSzB4em5UM09Sel9fS1ZDcDdva1dmSUxRYUhhVWY1Q29UcVoxQkk4WS1sMFlOc256ZlMtbExFLVhzQjRwbEVQOXBy?oc=5",
+      "published_at": "2026-10-09T09:32:26+00:00",
+      "fetched_at": "2026-10-09T16:12:29.776895+00:00",
+      "category": "gold",
+      "summary": "Gold Prices Rise 1.5% as Dollar and US Treasury Yields Retreat &nbsp;&nbsp; Yahoo Finance",
+      "entities": [
+        "Treasury"
+      ],
+      "relevance_to_gold": 5,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Gold price today, Friday, October 9, 2026: Gold prices see modest gains after 'productive discussions' with Iran - Yahoo Finance",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMijwJBVV95cUxPc3BLTlBrSUxxSnkxRk9PZldTbEhocjFYV1hKM254TTdkYkg4Mzg0ODZ3VnBEQUtra2UtaXUtSUpUT1ZTMUFvZmQzTVFQcmFfeGZ1bi04QWNLNThwTW04aGZnN1V2OW9UWlVaYlg0YVJVSjRrZDZPVTg5VlBETGFFM2J1bGxNRjYxY0tpSFZpSEljejc4Szl3OTNYbmx2WVA4RTZjZG9jN1FQVDNQcXpfclZ6bVF1TmhmNXBLMjE1MzBtN1RFSjlWMWx2TmxQS1l3azVhdXdtT1p2QWJVSExKcEI4bUJONUdOZ0N1b21JVDU2bDY1VTd4QVRZMHliei03R05OUFc5VjZpdG1rN2Nn?oc=5",
+      "published_at": "2026-10-09T10:59:55+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold_geo",
+      "summary": "Gold price today, Friday, October 9, 2026: Gold prices see modest gains after 'productive discussions' with Iran &nbsp;&nbsp; Yahoo Finance",
+      "entities": [
+        "Iran"
+      ],
+      "relevance_to_gold": 5,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Gold price trades near high after preliminary Consumer Sentiment falls to 46.3, inflation expectations rise - Kitco",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPcFd5VWxYTzE1YzQzZEJOQlhReVc4dU1jd2tmLTl0TW1fR29fOXRqQlY0MUlIZmpGN2I0QWhjemVRc19lN3ZBM281bk9lLWoxQXVQZzY2UkV6YVFkRjJ5VjQ1blplcUI4WXQtMjRTeWJjNU9jTU9fajEzSE5vY2FiaFpvSE9qMjlDajFWY2I5WnpNYXhEUHlnX0xJN0gwUTdfNFM1cVdqenBDcHptS2xmU2RiVGI5SFQ3OHNubA?oc=5",
+      "published_at": "2026-10-09T11:01:00+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Gold price trades near high after preliminary Consumer Sentiment falls to 46.3, inflation expectations rise &nbsp;&nbsp; Kitco",
+      "entities": [],
+      "relevance_to_gold": 5,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Gold recovery stalls near $4,200 as US Dollar, Treasury yields stabilise - FXStreet",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxPWVZ0V29BSzhjMlRGaEctTDRzYkdYaGkzZTlMTXg0c3pVeWpUdDZrc293R1dod3BtUk5wcEp6NEM1dDJiWGgzUzdzQmgtdEpFdmNvT2d5UWxqLUd0dFE5RzNTdXBCd1BzZ1lEMjRlV0tKUEktX08wakhJLUdnNUxEUEtsVklhS2V4cVZBZDdQMzh3a3o5NWpSMG50bmlVMjByLVNuSjU4SFhraFpEVWZOVl9tVQ?oc=5",
+      "published_at": "2026-10-09T12:27:33+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Gold recovery stalls near $4,200 as US Dollar, Treasury yields stabilise &nbsp;&nbsp; FXStreet",
+      "entities": [
+        "Treasury"
+      ],
+      "relevance_to_gold": 5,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Gold & Silver Prices Surge in Delhi: US Dollar Weakens - Rediff MoneyWiz",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPSS1xdURxR3NHUF9HbEZ0MzRtenU1VWRIa3k2TzlvRFpiUHdPSWJ0ZXlOcDhMdTRCTDF6elYzTDRiOHFleXA2cE85dExTaTFtYmJkejZqaGlaUEVBVHktZlNtSGpxczUyUFp0RXVxNXFUQWRTZmdtNHhNYjh4dnNoWXBLZHhYRmp0TDcxdDhMLVdEQUxOOGZjdDRXNUNGUXY1QnVoejJ30gGrAUFVX3lxTFBjbkdiR2h3XzRzOGdlMmJ3SW84VTlPOG1kUURtNzZlb2F1OFhMaGRaeVVLb3FEV3NzN0JMMEE2OGFWUWtKNFd6SDBCZmpTaTNOTEtzYUxpZjZYQ2daeHlTOEpsb2pkdU9yNVdTSTRHeEVoUGpHMW1fSE0ySXhpV3VxUFVQeTVPRURab010elhKY3dIYk55V1Q3ZndlQlB1dUI2OEFfYnBNMDlkRQ?oc=5",
+      "published_at": "2026-10-09T12:43:36+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Gold & Silver Prices Surge in Delhi: US Dollar Weakens &nbsp;&nbsp; Rediff MoneyWiz",
+      "entities": [],
+      "relevance_to_gold": 5,
+      "sentiment": "bullish_gold",
+      "tier": 2
+    },
+    {
+      "title": "Bitcoin and Gold Outlook: BTC reclaims $82K, XAU approaches $4,200 as October rate hike bets dim - Mitrade",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxNdkZGTHdTX0ZYTEt3V1R3dkNGZUE3ZVFfVjRsTUcwSm85X2E5R0lhQldWYzc1bUxzbGpoejZFNWxhQkYtdGlmOWNEdlZFYS1hQkNjNHVBRm9aQTF3U2lpRlhaZENKa1Q3OGlFc2JpcmYwbXh3akNsWXhJSXZMOFdVVjV1RQ?oc=5",
+      "published_at": "2026-10-09T16:05:36+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Bitcoin and Gold Outlook: BTC reclaims $82K, XAU approaches $4,200 as October rate hike bets dim &nbsp;&nbsp; Mitrade",
+      "entities": [],
+      "relevance_to_gold": 5,
+      "sentiment": "bearish_gold",
+      "tier": 2
+    },
+    {
+      "title": "India Gold price today: Gold rises, according to FXStreet data - www.tmgm.com",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxOYWxYdGl5X1ctVXdKRnNkRDl5amFNMldEeFY4SjQ1b2ZUaWhuenRza0x2cEpvbzFPZFFwcE5QZnVVV202RWs2WUdybTh6Um4tOTVsNzhyT1FJYlg0ek9CWnl1X2lCYWZjVU13cU1PVjFpU1pySE44eTl0RkdrMno1V1E3Y1kxTnBWRWNwYTg2bHZjSHhlV3NhZ0VZM3E4U0RNNV9MWXNWdlhnT0FHZkZBT1dhUjN4bXNjRUZicGhueE1iaU9Z?oc=5",
+      "published_at": "2026-10-08T05:06:31+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "India Gold price today: Gold rises, according to FXStreet data &nbsp;&nbsp; www.tmgm.com",
+      "entities": [],
+      "relevance_to_gold": 4,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Gold Price Forecast: Gold Drops Below $4,100, Could Test $4,000 in Short Term - TradingKey",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxOZHpmM1htbG5RWnZpcHUzRzM4Nm0wOGVzNkdfdUxYbXo1RUR5NDZ2S1dFMTVQUDRYb2lENGZ2REQ4VGxOdk5OLWttZkV6dTVtdkw5S0REdGx1OWR6ek9CQ0xSc01XU21sTHl5U0FaY3hhaTF2dUZIbzhHTGltdWdRY1g2TTN2SE02dTA5dHdVSjNqRWoyWm83Nmw5VEdfejYtdnkyLXlhYkpjNlN6a2xhWVJfUlBEOGlSdUdtMw?oc=5",
+      "published_at": "2026-10-08T06:48:52+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Gold Price Forecast: Gold Drops Below $4,100, Could Test $4,000 in Short Term &nbsp;&nbsp; TradingKey",
+      "entities": [],
+      "relevance_to_gold": 4,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "21-Karat Gold Price Stands at JD84 in Local Market - Fana News -",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxON21vd2MtVjlESkREQU8wZEJsa1owNUMyY1R4T21Od0s3aVQtM1ZDNF9BTF9kRnVQRVAxS19pLUNGNGNUSWVOaDJxdDhKYlNTMFNFb2t1UXFVdFlZalZzUjFLdTN5aGxKdFNjWXFUcGFEMm5HeTFlNnAwODgzUDQ3LVhScEdUNnZuNjJjT3hwT2ZIcFFZ?oc=5",
+      "published_at": "2026-10-08T08:49:06+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "21-Karat Gold Price Stands at JD84 in Local Market &nbsp;&nbsp; Fana News -",
+      "entities": [],
+      "relevance_to_gold": 4,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Gold price at $4,122/oz after U.S. weekly jobless claims fall to 197k - Kitco",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxOcFEyYkhodFBheWNtMFA2SWtXZlhSdVUxa3ZIalJYZTB1QUNQN1NNOVVrdzhNUmhQZ0tza3VBQnBzVWpLcHVlUGRTWUxSSnRpVGlLZ0ZmclpqQXpmSEFadW8weXNpQlRPcTJhNmtrMjhpZ0hpMFJta0dabXhNcHR1bV9CWDMzNWh4dU1aWnl1cXR2aXNMU3dQMmsyc3JiT0V2bFZpd0xiWQ?oc=5",
+      "published_at": "2026-10-08T09:40:00+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Gold price at $4,122/oz after U.S. weekly jobless claims fall to 197k &nbsp;&nbsp; Kitco",
+      "entities": [],
+      "relevance_to_gold": 4,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Gold Price Forecast: XAU/USD recovery falters as Oil and yields rise - Mitrade",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMigwFBVV95cUxPUWxoUFBka1VUVEFtMTFFZ296WFljUGM2NTNzOWd5SVk2bFp0MENyTlJVblExNU1wRmJfYkNnOFFNWHY3cWdQT0ktZVNhZDRpQlc4SzU4NS1jR0dLTUVoSWxkUTJCLTBwQWI2YV9aR0VCUS1MZklQRFQydWZIU1RBc0dqMA?oc=5",
+      "published_at": "2026-10-08T10:09:04+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Gold Price Forecast: XAU/USD recovery falters as Oil and yields rise &nbsp;&nbsp; Mitrade",
+      "entities": [],
+      "relevance_to_gold": 4,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Central Banks Keep Buying, but Gold Keeps Falling - Trending Topics",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMif0FVX3lxTE8wdWlGbVRBdGpQQVBPQk4ydDJ2MGVwTWp6dTBuNFMyUWNkU21WNGQtTkpEQXRxdW1zdXhsYW5UTkxROGdLWkNtNW9lNlBBQUszUkhUWHQ4TmpKUjFCWXIwNDlmRzJDbENocF83VVZSQ1djU1FhclFpQS01YzJ0d1U?oc=5",
+      "published_at": "2026-10-08T11:26:37+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Central Banks Keep Buying, but Gold Keeps Falling &nbsp;&nbsp; Trending Topics",
+      "entities": [],
+      "relevance_to_gold": 4,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Gold ETF Down 13% in Six Months: 4 Bullish Reasons for Long Term - TradingView",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxQM0pTZFFkNEZKeG1LZGoyY3FhaDNEVnZoZzVCelVvb3lMVU02aUNoM2FyUld2STBzMHJfb1ZlMmVLblJKbmU5S3BzSUFUc0FzMlVYWURGblpabTAyRzdtWUhSN0JIWlhBa1ZCYlpCNkZIWFQ1andQX1g4SUFYN0VCRDZ1MFRkZU1sWXRGM081a0pBRmtxOTAwV3RYU0dKMmR1ak5mZFBWdE85SEFnUHZmWGp3RlNDdTUw?oc=5",
+      "published_at": "2026-10-08T12:00:00+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Gold ETF Down 13% in Six Months: 4 Bullish Reasons for Long Term &nbsp;&nbsp; TradingView",
+      "entities": [],
+      "relevance_to_gold": 4,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Kryptonite hit to gold price draws strongest investor demand in 5 years - IFA Magazine",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxPZHlsQ1VJdkFpX3Z1bDZNa0JlWklwRDRUOUdDODhHTXdvbjUxOWR3VU1hbWRBcWtua2FWWkIwVFY4aFNxb18tVmdnSkktay1mbDlZZFlHdGxyX3hNY1YweEV0bEZQYmM2cXo4N2JXcXc5OTMwWVR4Y3U4RG52enFqaGVnc2tsY3FwSHRTdHdrVEQyREpaTkdLSG8xRXQ?oc=5",
+      "published_at": "2026-10-08T12:16:08+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Kryptonite hit to gold price draws strongest investor demand in 5 years &nbsp;&nbsp; IFA Magazine",
+      "entities": [],
+      "relevance_to_gold": 4,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Gold ETF Down 13% in Six Months: 4 Bullish Reasons for Long Term - Zacks Investment Research",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxNZDFINU96Z3ZiR3E2Z3RGTWRhVHdZVUUwYnRZQm5DbXlLc1ZVbFJqaGRDWkI2XzdCUFZCSE1hZS0xNi1ZSi1OWUJsa05SNlNFUHBHdFVPcF9nQlpOa1k0QUk4R0NvSkJ5M1BpUnFFc3NQa2JwanJJckRlMzhQeDVvVjJrbE5BOGswMlFzeG1YMXBiTjdURlNnOGRGckMwMHlTbWhZNUhn?oc=5",
+      "published_at": "2026-10-08T12:19:07+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Gold ETF Down 13% in Six Months: 4 Bullish Reasons for Long Term &nbsp;&nbsp; Zacks Investment Research",
+      "entities": [],
+      "relevance_to_gold": 4,
+      "sentiment": "neutral",
+      "tier": 2
+    },
+    {
+      "title": "Current price of gold as of October 8, 2026 - Fortune",
+      "source": "news.google.com",
+      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9kaFg3dzdZV3U3Tm1BVzBBckZ1V0NUOUxuNmM0OWx0bmw4Z1JVUFJVcVdqQ29feUtvbmVSeldUSWdEV2ViTUJ6U1JGM0dLSFY5eFdWTjVMZDhmY3YxU2gzQkczVjRDaXhKZmdSZ2d3?oc=5",
+      "published_at": "2026-10-08T13:05:00+00:00",
+      "fetched_at": "2026-10-09T16:12:29.247115+00:00",
+      "category": "gold",
+      "summary": "Current price of gold as of October 8, 2026 &nbsp;&nbsp; Fortune",
+      "entities": [],
+      "relevance_to_gold": 4,
+      "sentiment": "neutral",
+      "tier": 2
     }
   ],
-  "version": "0.2.0"
+  "analysis": {
+    "most_likely": "有高相关新闻但历史价格变动不足，今日解释以事件观察为主、因果强度有限",
+    "confidence": "低",
+    "layers": [
+      {
+        "layer": "macro",
+        "title": "第一层·宏观：中性",
+        "support": "10Y 实际收益率最新 2.920%（状态 ok）；USD/CNY≈6.682",
+        "counter": "尚无足够历史序列计算实际利率日变动",
+        "confidence": "中",
+        "todo": "核对 DXY 与名义收益率是否同向"
+      },
+      {
+        "layer": "events",
+        "title": "第二层·事件：偏利多（避险/地缘叙事较多）",
+        "support": "高相关新闻 25 条；样本：[5] Gold Price Forecast: XAU/USD Rebounds From $4,070 as Fed Pause Bets Clash With 5；[5] Gold (XAUUSD) & Silver Price Forecast: Fed Minutes Weigh, Can Gold Hold $4,100? ；[5] Gold price today, Thursday, October 8, 2026: Yearly gold gains evaporate after F；[5] Gold Analysis: Fed Minutes Keep Pressure on XAU/USD - FOREX.com；[5] Gold Just Fell to a Two-Month Low as the Fed Signals Another Hike - 24/7 Wall St",
+        "counter": "新闻情绪为关键词规则，不是因果证明；同源转载可能放大权重",
+        "confidence": "中",
+        "todo": "点开原文核对时间戳与事实，勿把标题当结论"
+      },
+      {
+        "layer": "positioning",
+        "title": "第三层·资金/仓位：周度背景",
+        "support": "COT 净非商业约 218,632 手（观测日见数据表；周度滞后，不能单独解释今日波动）",
+        "counter": "ETF/WGC 若无当日更新，不得写成今日流入",
+        "confidence": "低",
+        "todo": "与上周 COT 对比拥挤度"
+      }
+    ],
+    "news_stats": {
+      "high_relevance_count": 25,
+      "geo_count": 3,
+      "macro_count": 22,
+      "bullish_tagged": 2,
+      "bearish_tagged": 1
+    },
+    "watchlist": [
+      "美债实际利率（DFII10）下一次更新",
+      "美元（USD/CNY 与未来可加的 DXY）",
+      "中东/伊朗相关可靠来源进展",
+      "Fed 官员讲话与数据（CPI/PCE/就业）",
+      "COT 周度更新（勿当日化）"
+    ]
+  },
+  "explanations": [
+    {
+      "title": "第一层·宏观：中性",
+      "support": "10Y 实际收益率最新 2.920%（状态 ok）；USD/CNY≈6.682",
+      "counter": "尚无足够历史序列计算实际利率日变动",
+      "confidence": "中",
+      "todo": "核对 DXY 与名义收益率是否同向"
+    },
+    {
+      "title": "第二层·事件：偏利多（避险/地缘叙事较多）",
+      "support": "高相关新闻 25 条；样本：[5] Gold Price Forecast: XAU/USD Rebounds From $4,070 as Fed Pause Bets Clash With 5；[5] Gold (XAUUSD) & Silver Price Forecast: Fed Minutes Weigh, Can Gold Hold $4,100? ；[5] Gold price today, Thursday, October 8, 2026: Yearly gold gains evaporate after F；[5] Gold Analysis: Fed Minutes Keep Pressure on XAU/USD - FOREX.com；[5] Gold Just Fell to a Two-Month Low as the Fed Signals Another Hike - 24/7 Wall St",
+      "counter": "新闻情绪为关键词规则，不是因果证明；同源转载可能放大权重",
+      "confidence": "中",
+      "todo": "点开原文核对时间戳与事实，勿把标题当结论"
+    },
+    {
+      "title": "第三层·资金/仓位：周度背景",
+      "support": "COT 净非商业约 218,632 手（观测日见数据表；周度滞后，不能单独解释今日波动）",
+      "counter": "ETF/WGC 若无当日更新，不得写成今日流入",
+      "confidence": "低",
+      "todo": "与上周 COT 对比拥挤度"
+    }
+  ],
+  "version": "0.3.0"
 }
