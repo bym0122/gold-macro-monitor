@@ -1,7 +1,9 @@
-"""News collection & deterministic dedupe only.
+"""News collection & deterministic dedupe only (v0.7).
 
-No event clustering, no gold bullish/bearish inference, no most_likely.
-Downstream ChatGPT reads data/news/YYYY-MM-DD.json for analysis.
+- Default lookback: 24 hours
+- Per-feed cap with explicit possible_truncation flag
+- No semantic clustering, no gold-direction inference
+- Do not drop articles for missing gold keywords or empty body
 """
 
 from __future__ import annotations
@@ -13,15 +15,13 @@ from dataclasses import dataclass, asdict, field
 from datetime import datetime, timezone, timedelta
 from email.utils import parsedate_to_datetime
 from typing import Any, Optional
-from urllib.parse import urlparse, parse_qs, unquote
+from urllib.parse import urlparse
 
 import requests
 
-USER_AGENT = "gold-macro-monitor/0.5 (data-collection; +https://github.com/bym0122/gold-macro-monitor)"
+USER_AGENT = "gold-macro-monitor/0.7 (data-collection; +https://github.com/bym0122/gold-macro-monitor)"
 
-# Configurable collection window (hours)
-DEFAULT_LOOKBACK_HOURS = 48
-# Per-feed article cap (hard size limit, not relevance filter)
+DEFAULT_LOOKBACK_HOURS = 24
 DEFAULT_PER_FEED_CAP = 80
 
 FEEDS: list[dict[str, Any]] = [
@@ -30,7 +30,7 @@ FEEDS: list[dict[str, Any]] = [
         "search_topic": "gold_etf_central_banks",
         "url": (
             "https://news.google.com/rss/search?q="
-            "gold+price+OR+XAU+OR+%22gold+ETF%22+OR+%22central+bank+gold%22+when:2d"
+            "gold+price+OR+XAU+OR+%22gold+ETF%22+OR+%22central+bank+gold%22+when:1d"
             "&hl=en-US&gl=US&ceid=US:en"
         ),
     },
@@ -39,7 +39,7 @@ FEEDS: list[dict[str, Any]] = [
         "search_topic": "fed_macro_yields_dollar",
         "url": (
             "https://news.google.com/rss/search?q="
-            "Fed+OR+FOMC+OR+Powell+OR+%22real+yield%22+OR+CPI+OR+PCE+OR+Treasury+OR+DXY+when:2d"
+            "Fed+OR+FOMC+OR+Powell+OR+%22real+yield%22+OR+CPI+OR+PCE+OR+Treasury+OR+DXY+when:1d"
             "&hl=en-US&gl=US&ceid=US:en"
         ),
     },
@@ -49,7 +49,7 @@ FEEDS: list[dict[str, Any]] = [
         "url": (
             "https://news.google.com/rss/search?q="
             "(Iran+OR+Hormuz+OR+%22Red+Sea%22+OR+Houthi)+"
-            "(attack+OR+strike+OR+sanctions+OR+missile+OR+blockade+OR+escalation+OR+ceasefire+OR+nuclear)+when:2d"
+            "(attack+OR+strike+OR+sanctions+OR+missile+OR+blockade+OR+escalation+OR+ceasefire+OR+nuclear)+when:1d"
             "&hl=en-US&gl=US&ceid=US:en"
         ),
     },
@@ -59,7 +59,7 @@ FEEDS: list[dict[str, Any]] = [
         "url": (
             "https://news.google.com/rss/search?q="
             "(Israel+OR+Gaza+OR+Lebanon+OR+Hezbollah)+"
-            "(attack+OR+strike+OR+ceasefire+OR+missile+OR+escalation+OR+war)+when:2d"
+            "(attack+OR+strike+OR+ceasefire+OR+missile+OR+escalation+OR+war)+when:1d"
             "&hl=en-US&gl=US&ceid=US:en"
         ),
     },
@@ -69,7 +69,7 @@ FEEDS: list[dict[str, Any]] = [
         "url": (
             "https://news.google.com/rss/search?q="
             "(US+OR+United+States+OR+Trump)+Iran+"
-            "(strike+OR+attack+OR+sanctions+OR+negotiation+OR+war+OR+military)+when:2d"
+            "(strike+OR+attack+OR+sanctions+OR+negotiation+OR+war+OR+military)+when:1d"
             "&hl=en-US&gl=US&ceid=US:en"
         ),
     },
@@ -79,7 +79,7 @@ FEEDS: list[dict[str, Any]] = [
         "url": (
             "https://news.google.com/rss/search?q="
             "(Ukraine+OR+Russia)+"
-            "(attack+OR+strike+OR+missile+OR+escalation+OR+NATO+OR+ceasefire+OR+sanctions)+when:2d"
+            "(attack+OR+strike+OR+missile+OR+escalation+OR+NATO+OR+ceasefire+OR+sanctions)+when:1d"
             "&hl=en-US&gl=US&ceid=US:en"
         ),
     },
@@ -89,7 +89,7 @@ FEEDS: list[dict[str, Any]] = [
         "url": (
             "https://news.google.com/rss/search?q="
             "(Taiwan+OR+%22Taiwan+Strait%22)+"
-            "(China+OR+PLA)+(drill+OR+missile+OR+escalation+OR+blockade+OR+tension)+when:2d"
+            "(China+OR+PLA)+(drill+OR+missile+OR+escalation+OR+blockade+OR+tension)+when:1d"
             "&hl=en-US&gl=US&ceid=US:en"
         ),
     },
@@ -110,7 +110,6 @@ FEEDS: list[dict[str, Any]] = [
     },
 ]
 
-# Optional keyword tags only (reference, not a drop filter)
 TAG_PATTERNS: list[tuple[str, str]] = [
     ("gold", r"\bgold\b|\bxau\b|bullion|gold etf"),
     ("fed", r"\bfed\b|\bfomc\b|\bpowell\b"),
@@ -137,15 +136,16 @@ class NewsArticle:
     url_is_google_news_redirect: bool
     published_at: Optional[str]
     fetched_at: str
-    summary: str
+    summary: Optional[str]  # None if no real RSS description
     language: Optional[str]
     search_topic: str
     keyword_tags: list[str] = field(default_factory=list)
-    relevance_to_gold_rule_score: Optional[int] = None  # rule score only
+    relevance_to_gold_rule_score: Optional[int] = None
     relevance_score_note: str = "machine keyword rule score; not impact judgment"
-    headline_sentiment: Optional[str] = None  # keyword-only; not directional claim
-    content_status: str = "rss_summary_only"
+    headline_sentiment: Optional[str] = None
+    content_status: str = "title_only"  # title_only | rss_summary_only | full_text_available | fetch_failed
     possible_duplicate: bool = False
+    feed_hit_cap: bool = False  # this article came from a feed that hit per-feed cap
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -169,7 +169,7 @@ def _parse_date(raw: Optional[str]) -> Optional[str]:
             dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
             return dt.astimezone(timezone.utc).isoformat()
         except Exception:
-            return None  # unknown rather than crashing
+            return None
 
 
 def _local(tag: str, el: ET.Element) -> Optional[ET.Element]:
@@ -193,9 +193,7 @@ def _article_id(url: str, title: str) -> str:
 
 
 def _norm_url(url: str) -> str:
-    u = (url or "").strip()
-    # strip common tracking query noise for dedupe key only
-    return u.split("#")[0].rstrip("/")
+    return (url or "").strip().split("#")[0].rstrip("/")
 
 
 def _norm_title(title: str) -> str:
@@ -203,7 +201,6 @@ def _norm_title(title: str) -> str:
 
 
 def _extract_source_from_title(title: str) -> tuple[str, Optional[str]]:
-    """Google News titles often end with ' - Publisher'."""
     if " - " in title:
         parts = title.rsplit(" - ", 1)
         if len(parts) == 2 and 1 < len(parts[1]) < 80:
@@ -226,7 +223,6 @@ def _keyword_tags(text: str) -> list[str]:
 
 
 def _rule_relevance(text: str) -> int:
-    """Optional 1-5 keyword score; NEVER used to drop articles."""
     t = text.lower()
     score = 1
     if re.search(r"\bgold\b|\bxau\b|bullion|gold etf", t):
@@ -253,12 +249,23 @@ def _headline_sentiment_kw(text: str) -> str:
     return "neutral_headline_kw"
 
 
+def _real_summary(desc: str, title: str) -> tuple[Optional[str], str]:
+    """Return (summary_or_None, content_status). Never paste title as fake summary."""
+    d = (desc or "").strip()
+    if not d:
+        return None, "title_only"
+    # If description is essentially the title, treat as title_only
+    if _norm_title(d) == _norm_title(title) or d.lower() == title.lower():
+        return None, "title_only"
+    return (d[:500] + ("…" if len(d) > 500 else "")), "rss_summary_only"
+
+
 def _fetch_feed(
     feed: dict[str, Any],
     lookback_hours: int,
     per_feed_cap: int,
-) -> tuple[list[NewsArticle], Optional[str]]:
-    """Returns (articles, error_message_or_None)."""
+) -> tuple[list[NewsArticle], Optional[str], bool]:
+    """Returns (articles, error_or_None, hit_cap)."""
     now = datetime.now(timezone.utc)
     fetched_at = now.isoformat()
     items: list[NewsArticle] = []
@@ -267,18 +274,21 @@ def _fetch_feed(
         resp.raise_for_status()
         root = ET.fromstring(resp.content)
     except Exception as e:
-        return [], f"{feed['name']}: {type(e).__name__}: {e}"
+        return [], f"{feed['name']}: {type(e).__name__}: {e}", False
 
     channel_items = root.findall(".//item")
     if not channel_items:
         channel_items = root.findall(".//{http://www.w3.org/2005/Atom}entry")
         channel_items += root.findall(".//entry")
 
+    total_in_feed = len(channel_items)
     cutoff = now - timedelta(hours=lookback_hours)
     count = 0
+    hit_cap = False
 
     for el in channel_items:
         if count >= per_feed_cap:
+            hit_cap = True
             break
         title_raw = _strip_html(_text(_local("title", el)))
         link_el = _local("link", el)
@@ -304,7 +314,6 @@ def _fetch_feed(
         if not title_raw or not url:
             continue
 
-        # Soft time filter: keep if within window OR published_at unknown
         if pub:
             try:
                 pdt = datetime.fromisoformat(pub.replace("Z", "+00:00"))
@@ -320,17 +329,16 @@ def _fetch_feed(
             host = urlparse(url).netloc.replace("www.", "")
             source_name = host or None
         if not source_name:
-            source_name = None  # unknown — do not invent
+            source_name = None
 
-        # RSS source field if present
         src_el = _local("source", el)
         if src_el is not None:
             sname = _text(src_el) or src_el.get("url")
             if sname:
                 source_name = sname.strip()
 
-        blob = f"{title} {desc}"
-        tags = _keyword_tags(blob)
+        summary, cstatus = _real_summary(desc, title)
+        blob = f"{title} {summary or ''}"
         art = NewsArticle(
             article_id=_article_id(url, title),
             title=title[:400],
@@ -340,22 +348,29 @@ def _fetch_feed(
             url_is_google_news_redirect=is_gn,
             published_at=pub,
             fetched_at=fetched_at,
-            summary=(desc[:500] + ("…" if len(desc) > 500 else "")),
-            language="en",  # feeds are EN-oriented; not guaranteed
+            summary=summary,
+            language="en",
             search_topic=feed.get("search_topic") or feed["name"],
-            keyword_tags=tags,
+            keyword_tags=_keyword_tags(blob),
             relevance_to_gold_rule_score=_rule_relevance(blob),
             headline_sentiment=_headline_sentiment_kw(blob),
-            content_status="rss_summary_only",
+            content_status=cstatus,
+            feed_hit_cap=False,  # set after loop if hit
         )
         items.append(art)
         count += 1
 
-    return items, None
+    # Cap hit: more items in feed XML than we took (after time filter we may still hit)
+    if count >= per_feed_cap and total_in_feed > per_feed_cap:
+        hit_cap = True
+    if hit_cap:
+        for a in items:
+            a.feed_hit_cap = True
+
+    return items, None, hit_cap
 
 
 def deterministic_dedupe(articles: list[NewsArticle]) -> tuple[list[NewsArticle], int]:
-    """Exact URL / normalized-title dedupe. No semantic merge."""
     seen_url: set[str] = set()
     seen_title: set[str] = set()
     out: list[NewsArticle] = []
@@ -367,8 +382,6 @@ def deterministic_dedupe(articles: list[NewsArticle]) -> tuple[list[NewsArticle]
             dropped += 1
             continue
         if nt and nt in seen_title:
-            # mark possible duplicate but keep if URL differs? Spec: if uncertain keep with flag
-            # Strict title match with different URL -> keep with possible_duplicate
             a.possible_duplicate = True
             out.append(a)
             seen_url.add(nu)
@@ -403,11 +416,14 @@ class NewsProvider:
         failed_feeds: list[str] = []
         per_feed_counts: dict[str, int] = {}
         per_topic_counts: dict[str, int] = {}
+        truncated_feeds: list[str] = []
 
         for feed in FEEDS:
-            arts, err = _fetch_feed(feed, lookback_hours, per_feed_cap)
+            arts, err, hit_cap = _fetch_feed(feed, lookback_hours, per_feed_cap)
             if err:
                 failed_feeds.append(err)
+            if hit_cap:
+                truncated_feeds.append(feed["name"])
             per_feed_counts[feed["name"]] = len(arts)
             topic = feed.get("search_topic") or feed["name"]
             per_topic_counts[topic] = per_topic_counts.get(topic, 0) + len(arts)
@@ -416,7 +432,6 @@ class NewsProvider:
         total_raw = len(raw)
         deduped, dropped = deterministic_dedupe(raw)
 
-        # sort: known published_at desc, unknown last
         known = [a for a in deduped if a.published_at]
         unknown = [a for a in deduped if not a.published_at]
         known.sort(key=lambda a: a.published_at or "", reverse=True)
@@ -425,6 +440,7 @@ class NewsProvider:
         unknown_source = sum(1 for a in ordered if not a.source_name)
         gn_redirect = sum(1 for a in ordered if a.url_is_google_news_redirect)
         rss_only = sum(1 for a in ordered if a.content_status == "rss_summary_only")
+        title_only = sum(1 for a in ordered if a.content_status == "title_only")
 
         stats = {
             "lookback_hours": lookback_hours,
@@ -434,14 +450,23 @@ class NewsProvider:
             "exact_dupes_dropped": dropped,
             "full_text_available": 0,
             "rss_summary_only": rss_only,
+            "title_only": title_only,
             "unknown_source_name": unknown_source,
             "google_news_redirect_urls": gn_redirect,
             "per_feed_counts": per_feed_counts,
             "per_topic_counts": per_topic_counts,
             "failed_feeds": failed_feeds,
+            "possibly_truncated_feeds": truncated_feeds,
+            "possible_truncation": len(truncated_feeds) > 0,
+            "truncation_note": (
+                "One or more feeds hit per_feed_cap; Google News RSS has no reliable free pagination. "
+                "Items beyond the cap were not fetched."
+                if truncated_feeds
+                else None
+            ),
             "note": (
-                "Collection coverage stats only. Article counts are not event counts "
-                "and do not measure market importance. No semantic clustering applied."
+                "Collection coverage stats only. Not event counts. No semantic clustering. "
+                f"Lookback={lookback_hours}h."
             ),
         }
         return NewsCollectionResult(articles=ordered, stats=stats)
