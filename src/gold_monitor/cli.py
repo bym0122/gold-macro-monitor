@@ -19,12 +19,13 @@ from gold_monitor.providers.fx import FxProvider
 from gold_monitor.providers.cot import CotProvider
 from gold_monitor.providers.fiscal import FiscalProvider
 from gold_monitor.providers.wgc import WgcProvider
+from gold_monitor.providers.news import NewsProvider
 from gold_monitor.normalize import normalize_metrics
 from gold_monitor.validate import summarize_statuses
 from gold_monitor.storage import write_daily_json, write_report_md
 from gold_monitor.report import build_daily_report
 from gold_monitor.indicators import compute_snapshot
-from gold_monitor.explain import candidate_explanations
+from gold_monitor.explain import candidate_explanations, build_layered_analysis
 from gold_monitor.providers.base import MetricPoint
 
 
@@ -41,6 +42,7 @@ def _collect_daily() -> list[MetricPoint]:
 def _collect_weekly_extras() -> list[MetricPoint]:
     metrics: list[MetricPoint] = []
     metrics.extend(CotProvider().get_latest())
+    # WGC: optional auto only — never block daily; never invent
     metrics.extend(WgcProvider().get_etf_snapshot())
     return metrics
 
@@ -56,21 +58,22 @@ def run_daily(report_date: str | None = None, include_weekly: bool = False, incl
     print(f"[gold-monitor] run_id={run_id} report_date={report_date}")
 
     metrics = _collect_daily()
-    if include_weekly:
-        metrics.extend(_collect_weekly_extras())
-    if include_monthly:
-        metrics.extend(_collect_monthly_extras())
+    # Always attach lagged weekly/monthly context when available
+    metrics.extend(_collect_weekly_extras())
+    metrics.extend(_collect_monthly_extras())
 
-    # On pure daily runs still attach last-known weekly/monthly if we want fuller report:
-    # always try COT/WGC/fiscal so report section is populated (they are lagged data)
-    if not include_weekly:
-        metrics.extend(_collect_weekly_extras())
-    if not include_monthly:
-        metrics.extend(_collect_monthly_extras())
+    # P0: news
+    news_items = []
+    try:
+        news_items = [n.to_dict() for n in NewsProvider().fetch_daily(min_relevance=3, limit=25)]
+        print(f"[gold-monitor] news high-relevance count={len(news_items)}")
+    except Exception as e:
+        print(f"[gold-monitor] news fetch failed: {e}")
 
     by_name = {m.metric: m for m in metrics}
     ind = compute_snapshot(by_name)
-    explanations = candidate_explanations(by_name, ind)
+    analysis = build_layered_analysis(by_name, ind, news_items)
+    explanations = candidate_explanations(by_name, ind, news_items)
 
     payload = {
         "run_id": run_id,
@@ -79,17 +82,22 @@ def run_daily(report_date: str | None = None, include_weekly: bool = False, incl
         "metrics": normalize_metrics(metrics),
         "status_summary": summarize_statuses(metrics),
         "indicators": ind,
+        "news": news_items,
+        "analysis": analysis,
         "explanations": explanations,
-        "version": "0.2.0",
+        "version": "0.3.0",
     }
 
     json_path = write_daily_json(report_date, payload)
-    md = build_daily_report(report_date, metrics, run_id, explanations, ind)
+    md = build_daily_report(
+        report_date, metrics, run_id, explanations, ind, news_items, analysis
+    )
     md_path = write_report_md(report_date, md)
 
     print(f"Wrote {json_path}")
     print(f"Wrote {md_path}")
     print("Status summary:", payload["status_summary"])
+    print("Most likely:", analysis.get("most_likely"))
     return 0
 
 
@@ -97,22 +105,18 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="gold-macro-monitor CLI")
     sub = parser.add_subparsers(dest="cmd")
 
-    daily = sub.add_parser("daily", help="Daily collection & report")
+    daily = sub.add_parser("daily", help="Daily collection & analysis report")
     daily.add_argument("--date", help="Report date YYYY-MM-DD")
 
-    weekly = sub.add_parser("weekly", help="Weekly: COT + WGC + daily core")
+    weekly = sub.add_parser("weekly", help="Weekly emphasis: COT + core")
     weekly.add_argument("--date", help="Report date YYYY-MM-DD")
 
-    monthly = sub.add_parser("monthly", help="Monthly: fiscal + weekly + daily")
+    monthly = sub.add_parser("monthly", help="Monthly emphasis: fiscal + core")
     monthly.add_argument("--date", help="Report date YYYY-MM-DD")
 
     args = parser.parse_args()
-    if args.cmd == "daily":
-        raise SystemExit(run_daily(args.date))
-    if args.cmd == "weekly":
-        raise SystemExit(run_daily(args.date, include_weekly=True))
-    if args.cmd == "monthly":
-        raise SystemExit(run_daily(args.date, include_weekly=True, include_monthly=True))
+    if args.cmd in ("daily", "weekly", "monthly"):
+        raise SystemExit(run_daily(getattr(args, "date", None)))
     parser.print_help()
     raise SystemExit(1)
 

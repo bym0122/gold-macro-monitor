@@ -6,6 +6,7 @@ from .fx import FxProvider
 from .cot import CotProvider
 from .fiscal import FiscalProvider
 from .wgc import WgcProvider
+from .news import NewsProvider
 
 __all__ = [
     "MetricPoint",
@@ -17,4 +18,5 @@ __all__ = [
     "CotProvider",
     "FiscalProvider",
     "WgcProvider",
+    "NewsProvider",
 ]
