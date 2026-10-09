@@ -1,0 +1,16 @@
+# Thresholds for indicators and staleness. Keep tunable, never hard-code in logic.
+
+staleness:
+  fred_daily_max_age_days: 3
+  gold_price_max_age_hours: 36
+  etf_max_age_hours: 36
+
+indicators:
+  short_window: 5
+  medium_window: 20
+  long_window: 60
+  correlation_windows: [20, 60]
+
+report:
+  max_candidate_explanations: 3
+  language: zh-CN

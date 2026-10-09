@@ -1,0 +1,51 @@
+# Data source configuration. Validate every provider before treating as stable.
+
+fred:
+  base_url: "https://api.stlouisfed.org/fred"
+  series:
+    DFII10:
+      metric: us_10y_real_yield
+      description: "10-Year Treasury Inflation-Indexed Security, Constant Maturity"
+      unit: percent
+      expected_lag_days: 2
+    DGS10:
+      metric: us_10y_nominal_yield
+      description: "Market Yield on U.S. Treasury Securities at 10-Year Constant Maturity"
+      unit: percent
+      expected_lag_days: 1
+    T10YIE:
+      metric: us_10y_breakeven_inflation
+      description: "10-Year Breakeven Inflation Rate"
+      unit: percent
+      expected_lag_days: 1
+    DTWEXBGS:
+      metric: usd_broad_index
+      description: "Nominal Broad U.S. Dollar Index"
+      unit: index
+      expected_lag_days: 2
+      enabled: false  # enable after verification
+
+gold_price:
+  # Provider candidates must be tested for ToS, accessibility, fields, update time.
+  # Do NOT treat any untested endpoint as stable.
+  primary: "placeholder"  # replace after validation
+  candidates:
+    - name: "yahoo_finance_gc"
+      notes: "GC=F continuous futures; verify license & field mapping"
+    - name: "stooq"
+      notes: "Public CSV; verify availability & terms"
+
+china_etf_159934:
+  primary: "placeholder"
+  candidates:
+    - name: "eastmoney"
+      notes: "Common public source for A-share ETFs; verify fields & ToS"
+    - name: "sina"
+      notes: "Alternative; verify consistency of NAV vs market price"
+
+news:
+  reuse:
+    - repo: "bym0122/global-news-24h"
+      notes: "Prefer reading existing artifacts over re-scraping"
+    - repo: "bym0122/larijani-iran-monitor"
+      notes: "Geopolitical events; optional"
