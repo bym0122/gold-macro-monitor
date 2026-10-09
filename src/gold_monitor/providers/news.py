@@ -1,1 +1,1 @@
-SEE_NEXT
+SEE_FILE:/home/workdir/artifacts/gold-mm/news_restored.py
