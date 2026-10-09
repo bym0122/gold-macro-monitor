@@ -1,4 +1,4 @@
-"""Persist daily metrics JSON, news JSON, and markdown reports."""
+"""Persist daily metrics JSON, news JSON, calendar JSON, and markdown reports."""
 
 from __future__ import annotations
 
@@ -17,7 +17,6 @@ def write_daily_json(report_date: str, payload: dict[str, Any], root: Path | Non
 
 
 def write_news_json(report_date: str, payload: dict[str, Any], root: Path | None = None) -> Path:
-    """Full news payload for downstream ChatGPT analysis."""
     root = root or Path(".")
     path = root / "data" / "news" / f"{report_date}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
