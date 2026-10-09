@@ -1,4 +1,4 @@
-"""Markdown daily report: market snapshot + news inventory (no causal analysis)."""
+"""Markdown daily report: market snapshot + calendar + news inventory (no causal analysis)."""
 
 from __future__ import annotations
 
@@ -47,6 +47,61 @@ def _chg_note(indicators: dict[str, Any], metric: str, kind: str = "pct") -> str
     return f"相对上一有效观测约 {chg:+.2f}%"
 
 
+def _render_calendar_section(calendar_payload: dict[str, Any] | None, report_date: str) -> list[str]:
+    lines: list[str] = [
+        "",
+        "## B. 官方经济日历（BLS / BEA / FOMC）",
+        "",
+    ]
+    if not calendar_payload:
+        lines.append("（本 run 未采集到日历数据）")
+        lines.append("")
+        return lines
+
+    stats = calendar_payload.get("collection_stats") or {}
+    cal_path = calendar_payload.get("path") or f"data/calendar/{report_date}.json"
+    lines += [
+        f"- 合并事件总数：**{stats.get('merged_total', '—')}**",
+        f"- 未来 7 天：**{stats.get('upcoming_7d_count', '—')}**",
+        f"- 近 14 天：**{stats.get('recent_14d_count', '—')}**",
+        f"- 完整 JSON：[`{cal_path}`](../{cal_path})",
+        "",
+    ]
+    errors = stats.get("errors") or []
+    if errors:
+        lines.append("### 采集错误")
+        for e in errors:
+            lines.append(f"- {e}")
+        lines.append("")
+
+    def _emit_events(title: str, key: str) -> None:
+        events = calendar_payload.get(key) or []
+        lines.append(f"### {title}")
+        if not events:
+            lines.append("（无）")
+            lines.append("")
+            return
+        lines.append("| 日期 | 事件 | 来源 | 子类型 | 数据质量 | 实际值 |")
+        lines.append("|------|------|------|--------|----------|--------|")
+        for ev in events[:40]:
+            d = ev.get("date") or ev.get("start_date") or "—"
+            name = (ev.get("title") or ev.get("name") or "—").replace("|", "/")[:80]
+            src = ev.get("source") or "—"
+            subtype = ev.get("event_subtype") or ev.get("subtype") or "—"
+            dq = ev.get("data_quality") or "—"
+            actual = ev.get("actual")
+            actual_s = "null" if actual is None else str(actual)
+            lines.append(f"| {d} | {name} | {src} | {subtype} | {dq} | {actual_s} |")
+        if len(events) > 40:
+            lines.append("")
+            lines.append(f"> 另有 **{len(events) - 40}** 条仅在 JSON 中。")
+        lines.append("")
+
+    _emit_events("未来 7 天", "upcoming_7d")
+    _emit_events("近 14 天（含今日）", "recent_14d")
+    return lines
+
+
 def build_daily_report(
     report_date: str,
     metrics: list[MetricPoint],
@@ -56,6 +111,7 @@ def build_daily_report(
     news_stats: dict[str, Any] | None = None,
     quality_notes: list[str] | None = None,
     news_json_path: str | None = None,
+    calendar_payload: dict[str, Any] | None = None,
 ) -> str:
     by_metric = {m.metric: m for m in metrics}
     now = datetime.now(timezone.utc).isoformat()
@@ -67,9 +123,9 @@ def build_daily_report(
     lines = [
         f"# 黄金宏观数据日报 {report_date}",
         "",
-        f"> 生成时间 (UTC): {now}  ·  run_id: `{run_id}`  ·  schema **v0.7**",
+        f"> 生成时间 (UTC): {now}  ·  run_id: `{run_id}`  ·  schema **v0.8**",
         ">",
-        "> **职责边界**：本报告仅含市场数据快照与新闻采集清单。",
+        "> **职责边界**：本报告仅含市场数据快照、官方日历与新闻采集清单。",
         "> 不包含事件聚类、黄金利多/利空判定或 most_likely 因果结论（由后续 ChatGPT 阅读 `data/news/` 完成）。",
         "",
         "## A. 今日市场数据快照",
@@ -122,11 +178,12 @@ def build_daily_report(
     else:
         lines.append("- 无额外提示")
 
+    lines += _render_calendar_section(calendar_payload, report_date)
+
     trunc = news_stats.get("possible_truncation")
     trunc_feeds = news_stats.get("possibly_truncated_feeds") or []
     lines += [
-        "",
-        "## B. 新闻采集总览",
+        "## C. 新闻采集总览",
         "",
         f"- 时间窗口：**最近 {news_stats.get('lookback_hours', '—')} 小时**",
         f"- 原始拉取条数：**{news_stats.get('raw_fetched', '—')}**",
@@ -163,7 +220,7 @@ def build_daily_report(
 
     news_link = news_json_path or f"data/news/{report_date}.json"
     lines += [
-        "## C. 新闻清单",
+        "## D. 新闻清单",
         "",
         f"完整新闻 JSON（供 ChatGPT 读取）：[`{news_link}`](../{news_link})",
         "",
@@ -208,9 +265,10 @@ def build_daily_report(
     _emit_table(unknown, "发布时间未知")
 
     lines += [
-        "## D. 原始数据路径",
+        "## E. 原始数据路径",
         "",
         f"- 市场指标：`data/daily/YYYY/MM/{report_date}.json`",
+        f"- 官方日历：`data/calendar/{report_date}.json`",
         f"- 完整新闻：`{news_link}`",
         f"- 本报告：`reports/{report_date}.md`",
         "",
