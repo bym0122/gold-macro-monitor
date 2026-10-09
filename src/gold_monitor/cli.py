@@ -1,4 +1,4 @@
-"""CLI entry for daily / weekly / monthly runs."""
+"""CLI: collect market metrics + news inventory; no causal news analysis."""
 
 from __future__ import annotations
 
@@ -23,10 +23,10 @@ from gold_monitor.providers.wgc import WgcProvider
 from gold_monitor.providers.news import NewsProvider
 from gold_monitor.normalize import normalize_metrics
 from gold_monitor.validate import summarize_statuses
-from gold_monitor.storage import write_daily_json, write_report_md
+from gold_monitor.storage import write_daily_json, write_news_json, write_report_md
 from gold_monitor.report import build_daily_report
 from gold_monitor.indicators import compute_snapshot
-from gold_monitor.explain import candidate_explanations, build_layered_analysis
+from gold_monitor.explain import data_quality_notes
 from gold_monitor.providers.base import MetricPoint
 
 
@@ -56,50 +56,75 @@ def _collect_monthly_extras() -> list[MetricPoint]:
 def run_daily(report_date: str | None = None) -> int:
     report_date = report_date or date.today().isoformat()
     run_id = str(uuid.uuid4())[:8]
-    print(f"[gold-monitor] run_id={run_id} report_date={report_date}")
+    print(f"[gold-monitor] run_id={run_id} report_date={report_date} schema=v0.5")
 
     metrics = _collect_daily()
     metrics.extend(_collect_weekly_extras())
     metrics.extend(_collect_monthly_extras())
 
-    news_items: list[dict] = []
-    events: list[dict] = []
+    news_result = None
     try:
-        arts, events = NewsProvider().fetch_daily(min_relevance=3, article_limit=40, event_limit=12)
-        news_items = [n.to_dict() for n in arts]
-        print(f"[gold-monitor] articles={len(news_items)} events={len(events)}")
+        news_result = NewsProvider().collect()
+        print(
+            f"[gold-monitor] news raw={news_result.stats.get('raw_fetched')} "
+            f"deduped={news_result.stats.get('after_deterministic_dedupe')} "
+            f"failed_feeds={len(news_result.stats.get('failed_feeds') or [])}"
+        )
     except Exception as e:
-        print(f"[gold-monitor] news fetch failed: {e}")
+        print(f"[gold-monitor] news collect failed: {e}")
+
+    articles = [a.to_dict() for a in (news_result.articles if news_result else [])]
+    news_stats = (news_result.stats if news_result else {"error": "news collect failed"})
+
+    news_payload = {
+        "schema_version": "news_v1",
+        "report_date": report_date,
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "run_id": run_id,
+        "articles": articles,
+        "collection_stats": news_stats,
+    }
+    news_path = write_news_json(report_date, news_payload)
 
     by_name = {m.metric: m for m in metrics}
     ind = compute_snapshot(by_name)
-    analysis = build_layered_analysis(by_name, ind, news_items, events)
-    explanations = candidate_explanations(by_name, ind, news_items, events)
+    qnotes = data_quality_notes(by_name, ind)
 
-    payload = {
+    daily_payload = {
+        "schema_version": "daily_v0.5",
         "run_id": run_id,
         "report_date": report_date,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "metrics": normalize_metrics(metrics),
         "status_summary": summarize_statuses(metrics),
         "indicators": ind,
-        "news": news_items,
-        "events": events,
-        "analysis": analysis,
-        "explanations": explanations,
-        "version": "0.4.0",
+        "news_ref": str(news_path),
+        "news_collection_stats": news_stats,
+        "data_quality_notes": qnotes,
+        "version": "0.5.0",
+        # legacy keys intentionally absent or null — no causal analysis
+        "analysis": None,
+        "explanations": None,
+        "events": None,
     }
 
-    json_path = write_daily_json(report_date, payload)
+    json_path = write_daily_json(report_date, daily_payload)
     md = build_daily_report(
-        report_date, metrics, run_id, explanations, ind, news_items, analysis, events
+        report_date=report_date,
+        metrics=metrics,
+        run_id=run_id,
+        indicators=ind,
+        news_articles=articles,
+        news_stats=news_stats,
+        quality_notes=qnotes,
+        news_json_path=str(news_path),
     )
     md_path = write_report_md(report_date, md)
 
     print(f"Wrote {json_path}")
+    print(f"Wrote {news_path}")
     print(f"Wrote {md_path}")
-    print("Status summary:", payload["status_summary"])
-    print("Most likely:", analysis.get("most_likely"))
+    print("Status summary:", daily_payload["status_summary"])
     return 0
 
 
@@ -107,7 +132,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="gold-macro-monitor CLI")
     sub = parser.add_subparsers(dest="cmd")
     for name, help_ in (
-        ("daily", "Daily collection & analysis report"),
+        ("daily", "Daily collection report"),
         ("weekly", "Weekly emphasis"),
         ("monthly", "Monthly emphasis"),
     ):
