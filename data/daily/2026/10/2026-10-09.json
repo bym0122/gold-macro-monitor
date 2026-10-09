@@ -1,0 +1,203 @@
+{
+  "run_id": "63f9f31d",
+  "report_date": "2026-10-09",
+  "generated_at_utc": "2026-10-09T15:37:41.633688+00:00",
+  "metrics": [
+    {
+      "metric": "us_10y_real_yield",
+      "value": 2.92,
+      "unit": "percent",
+      "source": "FRED",
+      "source_url": "https://fred.stlouisfed.org/series/DFII10",
+      "observation_date": "2026-10-07",
+      "fetched_at_utc": "2026-10-09T15:37:39.619796+00:00",
+      "status": "ok",
+      "notes": ""
+    },
+    {
+      "metric": "us_10y_nominal_yield",
+      "value": 5.28,
+      "unit": "percent",
+      "source": "FRED",
+      "source_url": "https://fred.stlouisfed.org/series/DGS10",
+      "observation_date": "2026-10-07",
+      "fetched_at_utc": "2026-10-09T15:37:39.826323+00:00",
+      "status": "ok",
+      "notes": ""
+    },
+    {
+      "metric": "us_10y_breakeven_inflation",
+      "value": 2.35,
+      "unit": "percent",
+      "source": "FRED",
+      "source_url": "https://fred.stlouisfed.org/series/T10YIE",
+      "observation_date": "2026-10-08",
+      "fetched_at_utc": "2026-10-09T15:37:40.317253+00:00",
+      "status": "ok",
+      "notes": ""
+    },
+    {
+      "metric": "gold_xauusd",
+      "value": 4188.16,
+      "unit": "USD/oz",
+      "source": "goldprice.dev",
+      "source_url": "https://api.goldprice.dev/v1/prices?symbol=XAU-USD-SPOT",
+      "observation_date": "2026-10-09",
+      "fetched_at_utc": "2026-10-09T15:37:40.317280+00:00",
+      "status": "ok",
+      "notes": "contract_type=spot; computed_at=2026-10-09T15:22:01.800285+00:00"
+    },
+    {
+      "metric": "etf_159934_close",
+      "value": 9.0,
+      "unit": "CNY",
+      "source": "Yahoo Finance",
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/159934.SZ?interval=1d&range=5d",
+      "observation_date": "2026-10-09",
+      "fetched_at_utc": "2026-10-09T15:37:40.579938+00:00",
+      "status": "ok",
+      "notes": "exchange last/close; not fund NAV"
+    },
+    {
+      "metric": "etf_159934_change_pct",
+      "value": 1.66,
+      "unit": "percent",
+      "source": "Yahoo Finance",
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/159934.SZ?interval=1d&range=5d",
+      "observation_date": "2026-10-09",
+      "fetched_at_utc": "2026-10-09T15:37:40.579938+00:00",
+      "status": "ok",
+      "notes": "regularMarketChangePercent"
+    },
+    {
+      "metric": "usd_cny",
+      "value": 6.6818,
+      "unit": "CNY per USD",
+      "source": "Yahoo Finance",
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/CNY=X?interval=1d&range=5d",
+      "observation_date": "2026-10-09",
+      "fetched_at_utc": "2026-10-09T15:37:40.658160+00:00",
+      "status": "ok",
+      "notes": "CNY=X last; offshore-ish FX quote via Yahoo"
+    },
+    {
+      "metric": "cot_gold_open_interest",
+      "value": 406456.0,
+      "unit": "contracts",
+      "source": "CFTC via futuresbench",
+      "source_url": "https://futuresbench.com/data/cot/gold.csv",
+      "observation_date": "2026-09-29",
+      "fetched_at_utc": "2026-10-09T15:37:40.734991+00:00",
+      "status": "ok",
+      "notes": "positions as-of 2026-09-29; weekly COT; not same-day"
+    },
+    {
+      "metric": "cot_gold_net_noncommercial",
+      "value": 218632.0,
+      "unit": "contracts",
+      "source": "CFTC via futuresbench",
+      "source_url": "https://futuresbench.com/data/cot/gold.csv",
+      "observation_date": "2026-09-29",
+      "fetched_at_utc": "2026-10-09T15:37:40.734991+00:00",
+      "status": "ok",
+      "notes": "positions as-of 2026-09-29; weekly COT; not same-day"
+    },
+    {
+      "metric": "cot_gold_net_commercial",
+      "value": -250967.0,
+      "unit": "contracts",
+      "source": "CFTC via futuresbench",
+      "source_url": "https://futuresbench.com/data/cot/gold.csv",
+      "observation_date": "2026-09-29",
+      "fetched_at_utc": "2026-10-09T15:37:40.734991+00:00",
+      "status": "ok",
+      "notes": "positions as-of 2026-09-29; weekly COT; not same-day"
+    },
+    {
+      "metric": "wgc_global_etf_holdings_t",
+      "value": 4256.0,
+      "unit": "tonnes",
+      "source": "WGC manual CSV",
+      "source_url": "https://www.gold.org/goldhub/data/gold-etfs-holdings-and-flows",
+      "observation_date": "2026-09",
+      "fetched_at_utc": "2026-10-09T15:37:40.850143+00:00",
+      "status": "ok",
+      "notes": "example row from public WGC commentary Sep-2026; replace with official download"
+    },
+    {
+      "metric": "wgc_global_etf_flow_usd_mn",
+      "value": 9952.0,
+      "unit": "USD million",
+      "source": "WGC manual CSV",
+      "source_url": "https://www.gold.org/goldhub/data/gold-etfs-holdings-and-flows",
+      "observation_date": "2026-09",
+      "fetched_at_utc": "2026-10-09T15:37:40.850143+00:00",
+      "status": "ok",
+      "notes": "example row from public WGC commentary Sep-2026; replace with official download"
+    },
+    {
+      "metric": "us_total_public_debt",
+      "value": 40284036147367.19,
+      "unit": "USD",
+      "source": "FiscalData",
+      "source_url": "https://fiscaldata.treasury.gov/datasets/debt-to-the-penny/debt-to-the-penny",
+      "observation_date": "2026-10-07",
+      "fetched_at_utc": "2026-10-09T15:37:40.850475+00:00",
+      "status": "ok",
+      "notes": "debt_held_public=32439260138550.17; intragov=7844776008817.02"
+    },
+    {
+      "metric": "us_interest_expense_fytd",
+      "value": 1360396866366.01,
+      "unit": "USD",
+      "source": "FiscalData",
+      "source_url": "https://fiscaldata.treasury.gov/datasets/interest-expense-debt-outstanding/",
+      "observation_date": "2026-09-30",
+      "fetched_at_utc": "2026-10-09T15:37:41.261337+00:00",
+      "status": "ok",
+      "notes": "sum of fytd_expense_amt for latest record_date lines; monthly lag"
+    }
+  ],
+  "status_summary": {
+    "ok": 14
+  },
+  "indicators": {
+    "gold_xauusd": {
+      "history_points": 0,
+      "chg_1d_pct": null,
+      "chg_5d_pct": null
+    },
+    "us_10y_real_yield": {
+      "history_points": 0,
+      "chg_1d_pct": null,
+      "chg_5d_pct": null
+    },
+    "us_10y_nominal_yield": {
+      "history_points": 0,
+      "chg_1d_pct": null,
+      "chg_5d_pct": null
+    },
+    "usd_cny": {
+      "history_points": 0,
+      "chg_1d_pct": null,
+      "chg_5d_pct": null
+    }
+  },
+  "explanations": [
+    {
+      "title": "原因未确认",
+      "support": "历史序列不足或涨跌与利率组合不匹配简单规则",
+      "counter": "—",
+      "confidence": "低",
+      "todo": "积累更多交易日数据后再比较"
+    },
+    {
+      "title": "COT 投机净多头背景（周度，非当日）",
+      "support": "最新 COT 净非商业持仓约 218,632 手",
+      "counter": "COT 有发布滞后，不能解释今日分钟级波动",
+      "confidence": "低",
+      "todo": "与前值比较拥挤度"
+    }
+  ],
+  "version": "0.2.0"
+}
