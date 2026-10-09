@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gold-macro-monitor"
+version = "0.1.0"
+description = "Low-cost gold macro monitoring via GitHub Actions"
+requires-python = ">=3.11"
+dependencies = [
+  "requests>=2.31.0",
+  "pyyaml>=6.0.1",
+  "python-dateutil>=2.8.2",
+  "pandas>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
