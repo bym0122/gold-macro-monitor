@@ -8,7 +8,6 @@ from typing import Any, Optional
 
 
 def load_recent_metric_values(metric: str, max_days: int = 90) -> list[tuple[str, float]]:
-    """Scan data/daily/**/*.json for metric values newest-first."""
     root = Path("data/daily")
     if not root.exists():
         return []
@@ -36,9 +35,14 @@ def pct_change(values: list[float], lag: int) -> Optional[float]:
 
 
 def compute_snapshot(metrics_by_name: dict[str, Any]) -> dict[str, Any]:
-    """Attach simple 1d notes when history exists."""
     out: dict[str, Any] = {}
-    for name in ("gold_xauusd", "us_10y_real_yield", "us_10y_nominal_yield", "usd_cny"):
+    for name in (
+        "gold_xauusd",
+        "us_10y_real_yield",
+        "us_10y_nominal_yield",
+        "usd_cny",
+        "dxy",
+    ):
         hist = load_recent_metric_values(name, 30)
         vals = [v for _, v in hist]
         out[name] = {

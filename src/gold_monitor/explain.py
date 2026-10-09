@@ -1,4 +1,4 @@
-"""Layered gold move analysis: macro + events + positioning — not trading signals."""
+"""Layered gold analysis: events + market cross-check. Not trading signals."""
 
 from __future__ import annotations
 
@@ -16,18 +16,51 @@ def _val(metrics: dict[str, MetricPoint], key: str) -> Optional[float]:
 
 def _status_label(metrics: dict[str, MetricPoint], key: str) -> str:
     p = metrics.get(key)
-    if not p:
-        return "missing"
-    return p.status.value
+    return p.status.value if p else "missing"
+
+
+def _market_verify(
+    prior: str,
+    gold_chg: Optional[float],
+    real_chg: Optional[float],
+    dxy_chg: Optional[float],
+) -> tuple[str, str]:
+    """Cross-check event prior against price/rates/DXY. Returns (impact, evidence)."""
+    bits = []
+    if gold_chg is not None:
+        bits.append(f"金价日变动≈{gold_chg:+.2f}%")
+    if real_chg is not None:
+        bits.append(f"实际利率日变动≈{real_chg:+.2f}%")
+    if dxy_chg is not None:
+        bits.append(f"DXY日变动≈{dxy_chg:+.2f}%")
+    evidence = "；".join(bits) if bits else "市场日变动序列不足，仅保留事件观察"
+
+    if gold_chg is None:
+        return "待市场验证", evidence
+
+    # Confirmed paths
+    if prior == "bearish_prior" and gold_chg < 0:
+        if (real_chg is not None and real_chg > 0) or (dxy_chg is not None and dxy_chg > 0):
+            return "确认偏空（事件先验 + 金价↓ + 利率/美元至少一项↑）", evidence
+        return "方向一致偏空（金价↓，利率/美元验证不足）", evidence
+    if prior == "bullish_prior" and gold_chg > 0:
+        if (real_chg is not None and real_chg < 0) or (dxy_chg is not None and dxy_chg < 0):
+            return "确认偏多（事件先验 + 金价↑ + 利率/美元至少一项↓）", evidence
+        return "方向一致偏多（金价↑，利率/美元未同步支持——或有避险主导）", evidence
+    if prior == "bearish_prior" and gold_chg > 0:
+        return "事件偏空但金价上涨（需其他驱动解释）", evidence
+    if prior == "bullish_prior" and gold_chg < 0:
+        return "事件偏多但金价下跌（需其他驱动解释）", evidence
+    return "中性/混杂", evidence
 
 
 def candidate_explanations(
     metrics: dict[str, MetricPoint],
     indicator_snap: dict[str, Any],
     news_items: list[dict[str, Any]] | None = None,
+    events: list[dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
-    """Legacy short candidates (kept for JSON compatibility)."""
-    layers = build_layered_analysis(metrics, indicator_snap, news_items or [])
+    layers = build_layered_analysis(metrics, indicator_snap, news_items or [], events or [])
     cands = []
     for layer in layers.get("layers", [])[:3]:
         cands.append(
@@ -43,10 +76,10 @@ def candidate_explanations(
         cands.append(
             {
                 "title": "原因未确认",
-                "support": "数据或新闻不足以形成可检验解释",
+                "support": "数据或事件不足以形成可检验解释",
                 "counter": "—",
                 "confidence": "低",
-                "todo": "等待更多日频序列与高相关新闻",
+                "todo": "等待更多日频序列与独立事件",
             }
         )
     return cands
@@ -56,151 +89,169 @@ def build_layered_analysis(
     metrics: dict[str, MetricPoint],
     indicator_snap: dict[str, Any],
     news_items: list[dict[str, Any]],
+    events: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
+    events = events or []
     gold = _val(metrics, "gold_xauusd")
     real = _val(metrics, "us_10y_real_yield")
-    nominal = _val(metrics, "us_10y_nominal_yield")
-    fx = _val(metrics, "usd_cny")
+    dxy = _val(metrics, "dxy")
+    dxy_chg_metric = _val(metrics, "dxy_change_pct")
     cot = _val(metrics, "cot_gold_net_noncommercial")
     gold_chg = (indicator_snap.get("gold_xauusd") or {}).get("chg_1d_pct")
     real_chg = (indicator_snap.get("us_10y_real_yield") or {}).get("chg_1d_pct")
-
-    high_news = [n for n in news_items if int(n.get("relevance_to_gold") or 0) >= 3]
-    geo_news = [n for n in high_news if n.get("category") in ("geopolitics", "gold_geo")]
-    macro_news = [n for n in high_news if n.get("category") in ("us_macro", "gold")]
-    bull_n = sum(1 for n in high_news if n.get("sentiment") == "bullish_gold")
-    bear_n = sum(1 for n in high_news if n.get("sentiment") == "bearish_gold")
+    dxy_hist_chg = (indicator_snap.get("dxy") or {}).get("chg_1d_pct")
+    dxy_chg = dxy_hist_chg if dxy_hist_chg is not None else dxy_chg_metric
 
     layers: list[dict[str, Any]] = []
 
-    # Layer 1: macro drivers
+    # Macro layer with DXY
     macro_bias = "中性"
-    macro_support = []
-    macro_counter = []
+    support = []
     if real is not None:
-        macro_support.append(f"10Y 实际收益率最新 {real:.3f}%（状态 {_status_label(metrics, 'us_10y_real_yield')}）")
-    if real_chg is not None:
-        if real_chg < 0:
-            macro_bias = "偏利多"
-            macro_support.append(f"实际利率近况变动约 {real_chg:.2f}%（下降通常对黄金偏支持）")
-        elif real_chg > 0:
-            macro_bias = "偏利空"
-            macro_support.append(f"实际利率近况变动约 {real_chg:.2f}%（上升通常对黄金偏压力）")
-        else:
-            macro_support.append("实际利率日变动接近持平")
-    else:
-        macro_counter.append("尚无足够历史序列计算实际利率日变动")
-    if fx is not None:
-        macro_support.append(f"USD/CNY≈{fx:.3f}")
-    if not macro_support:
-        macro_support.append("宏观核心序列部分缺失")
+        support.append(f"10Y实际收益率 {real:.3f}%")
+    if dxy is not None:
+        support.append(f"DXY {dxy:.3f}" + (f"（日变动 {dxy_chg:+.2f}%）" if dxy_chg is not None else ""))
+    if real_chg is not None and dxy_chg is not None:
+        if real_chg < 0 and dxy_chg < 0:
+            macro_bias = "偏利多（利率↓且美元↓）"
+        elif real_chg > 0 and dxy_chg > 0:
+            macro_bias = "偏利空（利率↑且美元↑）"
+        elif real_chg < 0 and dxy_chg > 0:
+            macro_bias = "混杂（利率↓但美元↑）"
+        elif real_chg > 0 and dxy_chg < 0:
+            macro_bias = "混杂（利率↑但美元↓）"
+    elif real_chg is not None:
+        macro_bias = "偏利多" if real_chg < 0 else ("偏利空" if real_chg > 0 else "中性")
+        support.append(f"实际利率日变动≈{real_chg:+.2f}%")
+    elif dxy_chg is not None:
+        macro_bias = "偏利多" if dxy_chg < 0 else ("偏利空" if dxy_chg > 0 else "中性")
+    if not support:
+        support.append("宏观核心序列部分缺失")
+
     layers.append(
         {
             "layer": "macro",
             "title": f"第一层·宏观：{macro_bias}",
-            "support": "；".join(macro_support),
-            "counter": "；".join(macro_counter) if macro_counter else "美元/广义美元指数若与金价同向，需降级单一利率解释",
-            "confidence": "中" if real is not None else "低",
-            "todo": "核对 DXY 与名义收益率是否同向",
+            "support": "；".join(support),
+            "counter": "USD/CNY 服务 159934，不能代替 DXY 判断美元对金价的全球通道",
+            "confidence": "中" if (real is not None and dxy is not None) else "低",
+            "todo": "与名义收益率、破均衡通胀交叉看",
         }
     )
 
-    # Layer 2: event / news
-    if high_news:
-        tops = high_news[:5]
-        titles = "；".join(f"[{n.get('relevance_to_gold')}] {n.get('title', '')[:80]}" for n in tops)
-        if geo_news and bull_n >= bear_n:
-            event_bias = "偏利多（避险/地缘叙事较多）"
-        elif geo_news and bear_n > bull_n:
-            event_bias = "混杂/偏空叙事"
-        elif bull_n > bear_n:
-            event_bias = "偏利多叙事"
-        elif bear_n > bull_n:
-            event_bias = "偏利空叙事"
-        else:
-            event_bias = "中性/混杂"
+    # Event layer — independent events, not article count
+    event_rows = []
+    for ev in events[:8]:
+        impact, evid = _market_verify(
+            ev.get("prior_bias") or "neutral_prior", gold_chg, real_chg, dxy_chg
+        )
+        event_rows.append(
+            {
+                "event_id": ev.get("event_id"),
+                "label": ev.get("label"),
+                "sources": ev.get("source_count"),
+                "articles": ev.get("article_count"),
+                "prior_bias": ev.get("prior_bias"),
+                "market_impact": impact,
+                "market_evidence": evid,
+                "first_published_at": ev.get("first_published_at"),
+                "latest_published_at": ev.get("latest_published_at"),
+                "sample_titles": ev.get("sample_titles") or [],
+            }
+        )
+
+    if event_rows:
+        summary = "；".join(
+            f"{e['label']}（源{e['sources']}家→{e['market_impact'][:12]}）" for e in event_rows[:4]
+        )
         layers.append(
             {
                 "layer": "events",
-                "title": f"第二层·事件：{event_bias}",
-                "support": f"高相关新闻 {len(high_news)} 条；样本：{titles}",
-                "counter": "新闻情绪为关键词规则，不是因果证明；同源转载可能放大权重",
-                "confidence": "中" if len(high_news) >= 3 else "低",
-                "todo": "点开原文核对时间戳与事实，勿把标题当结论",
+                "title": f"第二层·独立事件：{len(event_rows)} 个（非文章条数）",
+                "support": summary,
+                "counter": "标题情绪(headline_sentiment)不参与因果；同事件多源只计一次",
+                "confidence": "中" if len(event_rows) >= 2 else "低",
+                "todo": "点开各事件 sample 原文核对事实时间戳",
             }
         )
     else:
         layers.append(
             {
                 "layer": "events",
-                "title": "第二层·事件：暂无高相关新闻",
-                "support": "过去约 36 小时内未筛到 relevance≥3 的条目（或抓取失败）",
-                "counter": "RSS 覆盖有限，不能解释为‘无事件’",
+                "title": "第二层·独立事件：暂无",
+                "support": "未形成可聚类的高相关事件（或抓取失败）",
+                "counter": "不能解释为今日无事件",
                 "confidence": "低",
-                "todo": "检查新闻源可用性或放宽关键词",
+                "todo": "检查 RSS/关键词",
             }
         )
 
-    # Layer 3: positioning
+    # Positioning
     if cot is not None:
         layers.append(
             {
                 "layer": "positioning",
                 "title": "第三层·资金/仓位：周度背景",
-                "support": f"COT 净非商业约 {cot:,.0f} 手（观测日见数据表；周度滞后，不能单独解释今日波动）",
-                "counter": "ETF/WGC 若无当日更新，不得写成今日流入",
+                "support": f"COT净非商业约 {cot:,.0f} 手（周度滞后，不能单独解释今日）",
+                "counter": "WGC 非每日硬依赖",
                 "confidence": "低",
-                "todo": "与上周 COT 对比拥挤度",
+                "todo": "与上周 COT 对比",
             }
         )
     else:
         layers.append(
             {
                 "layer": "positioning",
-                "title": "第三层·资金/仓位：数据不足",
-                "support": "COT 或其他仓位序列不可用",
+                "title": "第三层·资金/仓位：不足",
+                "support": "COT 不可用",
                 "counter": "—",
                 "confidence": "低",
-                "todo": "检查 COT CSV 源",
+                "todo": "检查 COT 源",
             }
         )
 
-    # Overall most-likely (cautious)
+    # Most likely narrative
     most_likely = "原因未确认"
     conf = "低"
-    if gold_chg is not None and real_chg is not None and high_news:
-        if gold_chg > 0 and real_chg < 0 and geo_news:
-            most_likely = "金价上涨更可能由「实际利率回落 + 地缘风险叙事」共同推动；需用美元与原文事实交叉验证"
+    geo_events = [e for e in event_rows if e.get("event_id", "").startswith("E_") and e["event_id"] in
+                  ("E_IRAN_HORMUZ", "E_ISRAEL_GAZA", "E_US_IRAN", "E_UKRAINE", "E_TAIWAN")]
+    fed_hawk = next((e for e in event_rows if e.get("event_id") == "E_FED_HAWK"), None)
+
+    if gold_chg is not None and real_chg is not None and dxy_chg is not None:
+        if gold_chg > 0 and real_chg < 0 and dxy_chg < 0:
+            most_likely = "金价上涨与「实际利率↓ + DXY↓」同向，宏观顺风是主候选；地缘事件作增强项"
             conf = "中"
-        elif gold_chg > 0 and real_chg > 0 and geo_news:
-            most_likely = "金价在实际利率上升背景下仍涨，优先检查地缘/避险与仓位因素，而非传统利率通道"
+        elif gold_chg > 0 and (real_chg > 0 or dxy_chg > 0) and geo_events:
+            most_likely = "利率/美元至少一项不支持金价，但出现地缘独立事件且金价上涨——避险/事件驱动是主候选"
             conf = "中"
-        elif gold_chg < 0 and real_chg > 0:
-            most_likely = "金价下跌与实际利率上升同向，宏观逆风是候选主因；仍需排除单纯获利了结"
+        elif gold_chg < 0 and (real_chg > 0 or dxy_chg > 0) and fed_hawk:
+            most_likely = "金价下跌与 Fed 偏鹰事件 + 利率/美元压力同向，宏观逆风是主候选"
+            conf = "中"
+        elif gold_chg < 0 and real_chg > 0 and dxy_chg > 0:
+            most_likely = "金价↓且实际利率↑、DXY↑，传统宏观逆风解释较强"
             conf = "中"
         else:
-            most_likely = "价格与利率/新闻组合未形成清晰单一主因，保持原因未确认"
+            most_likely = "价格与利率/DXY/事件组合未形成单一主因，保持原因未确认"
             conf = "低"
-    elif high_news and gold is not None:
-        most_likely = "有高相关新闻但历史价格变动不足，今日解释以事件观察为主、因果强度有限"
+    elif event_rows and gold is not None:
+        most_likely = f"已识别 {len(event_rows)} 个独立事件，但日变动历史不足，因果强度有限"
         conf = "低"
 
     return {
         "most_likely": most_likely,
         "confidence": conf,
         "layers": layers,
+        "event_analysis": event_rows,
         "news_stats": {
-            "high_relevance_count": len(high_news),
-            "geo_count": len(geo_news),
-            "macro_count": len(macro_news),
-            "bullish_tagged": bull_n,
-            "bearish_tagged": bear_n,
+            "article_count": len(news_items),
+            "independent_event_count": len(event_rows),
+            "geo_event_count": len(geo_events),
         },
         "watchlist": [
-            "美债实际利率（DFII10）下一次更新",
-            "美元（USD/CNY 与未来可加的 DXY）",
-            "中东/伊朗相关可靠来源进展",
-            "Fed 官员讲话与数据（CPI/PCE/就业）",
-            "COT 周度更新（勿当日化）",
+            "10Y 实际收益率（DFII10）",
+            "DXY 美元指数",
+            "伊朗/霍尔木兹/美伊 独立事件是否升级",
+            "Fed 官员讲话与通胀数据",
+            "COT 周度（勿当日化）",
         ],
     }

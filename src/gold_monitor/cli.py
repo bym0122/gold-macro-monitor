@@ -16,6 +16,7 @@ from gold_monitor.providers.fred import FredProvider
 from gold_monitor.providers.gold_price import GoldPriceProvider
 from gold_monitor.providers.china_etf import ChinaGoldETFProvider
 from gold_monitor.providers.fx import FxProvider
+from gold_monitor.providers.dxy import DxyProvider
 from gold_monitor.providers.cot import CotProvider
 from gold_monitor.providers.fiscal import FiscalProvider
 from gold_monitor.providers.wgc import WgcProvider
@@ -36,13 +37,13 @@ def _collect_daily() -> list[MetricPoint]:
     metrics.append(GoldPriceProvider().get_spot_or_futures())
     metrics.extend(ChinaGoldETFProvider().get_159934())
     metrics.append(FxProvider().get_usd_cny())
+    metrics.extend(DxyProvider().get_dxy())
     return metrics
 
 
 def _collect_weekly_extras() -> list[MetricPoint]:
     metrics: list[MetricPoint] = []
     metrics.extend(CotProvider().get_latest())
-    # WGC: optional auto only — never block daily; never invent
     metrics.extend(WgcProvider().get_etf_snapshot())
     return metrics
 
@@ -52,28 +53,28 @@ def _collect_monthly_extras() -> list[MetricPoint]:
     return [fiscal.get_debt_to_penny(), fiscal.get_interest_expense_fytd()]
 
 
-def run_daily(report_date: str | None = None, include_weekly: bool = False, include_monthly: bool = False) -> int:
+def run_daily(report_date: str | None = None) -> int:
     report_date = report_date or date.today().isoformat()
     run_id = str(uuid.uuid4())[:8]
     print(f"[gold-monitor] run_id={run_id} report_date={report_date}")
 
     metrics = _collect_daily()
-    # Always attach lagged weekly/monthly context when available
     metrics.extend(_collect_weekly_extras())
     metrics.extend(_collect_monthly_extras())
 
-    # P0: news
-    news_items = []
+    news_items: list[dict] = []
+    events: list[dict] = []
     try:
-        news_items = [n.to_dict() for n in NewsProvider().fetch_daily(min_relevance=3, limit=25)]
-        print(f"[gold-monitor] news high-relevance count={len(news_items)}")
+        arts, events = NewsProvider().fetch_daily(min_relevance=3, article_limit=40, event_limit=12)
+        news_items = [n.to_dict() for n in arts]
+        print(f"[gold-monitor] articles={len(news_items)} events={len(events)}")
     except Exception as e:
         print(f"[gold-monitor] news fetch failed: {e}")
 
     by_name = {m.metric: m for m in metrics}
     ind = compute_snapshot(by_name)
-    analysis = build_layered_analysis(by_name, ind, news_items)
-    explanations = candidate_explanations(by_name, ind, news_items)
+    analysis = build_layered_analysis(by_name, ind, news_items, events)
+    explanations = candidate_explanations(by_name, ind, news_items, events)
 
     payload = {
         "run_id": run_id,
@@ -83,14 +84,15 @@ def run_daily(report_date: str | None = None, include_weekly: bool = False, incl
         "status_summary": summarize_statuses(metrics),
         "indicators": ind,
         "news": news_items,
+        "events": events,
         "analysis": analysis,
         "explanations": explanations,
-        "version": "0.3.0",
+        "version": "0.4.0",
     }
 
     json_path = write_daily_json(report_date, payload)
     md = build_daily_report(
-        report_date, metrics, run_id, explanations, ind, news_items, analysis
+        report_date, metrics, run_id, explanations, ind, news_items, analysis, events
     )
     md_path = write_report_md(report_date, md)
 
@@ -104,15 +106,13 @@ def run_daily(report_date: str | None = None, include_weekly: bool = False, incl
 def main() -> None:
     parser = argparse.ArgumentParser(description="gold-macro-monitor CLI")
     sub = parser.add_subparsers(dest="cmd")
-
-    daily = sub.add_parser("daily", help="Daily collection & analysis report")
-    daily.add_argument("--date", help="Report date YYYY-MM-DD")
-
-    weekly = sub.add_parser("weekly", help="Weekly emphasis: COT + core")
-    weekly.add_argument("--date", help="Report date YYYY-MM-DD")
-
-    monthly = sub.add_parser("monthly", help="Monthly emphasis: fiscal + core")
-    monthly.add_argument("--date", help="Report date YYYY-MM-DD")
+    for name, help_ in (
+        ("daily", "Daily collection & analysis report"),
+        ("weekly", "Weekly emphasis"),
+        ("monthly", "Monthly emphasis"),
+    ):
+        p = sub.add_parser(name, help=help_)
+        p.add_argument("--date", help="Report date YYYY-MM-DD")
 
     args = parser.parse_args()
     if args.cmd in ("daily", "weekly", "monthly"):
