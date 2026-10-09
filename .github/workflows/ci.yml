@@ -23,3 +23,4 @@ jobs:
         env:
           PYTHONPATH: src
         run: pytest -q tests/
+        # Must fail the job on test failure — never append || true

@@ -7,7 +7,6 @@ from typing import Any
 
 from .providers.base import MetricPoint, DataStatus
 
-# Markdown preview limit; full list always in data/news/YYYY-MM-DD.json
 MD_NEWS_PREVIEW_LIMIT = 80
 
 
@@ -28,12 +27,23 @@ def _fmt_value(p: MetricPoint) -> str:
 def _chg_note(indicators: dict[str, Any], metric: str, kind: str = "pct") -> str:
     snap = indicators.get(metric) or {}
     pts = snap.get("history_points") or 0
-    chg = snap.get("chg_1d_pct")
-    if pts < 2 or chg is None:
-        return "相对上一观测：历史不足 / 本次未计算"
+    if pts < 2:
+        return "相对上一有效观测：历史不足 / null"
+
     if kind == "yield":
-        # chg_1d_pct on yield levels is relative %; also show approx bp if level known
-        return f"相对上一有效观测约 {chg:+.2f}%（相对变化；非基点绝对值）"
+        bps = snap.get("chg_1_obs_bps")
+        pp = snap.get("chg_1_obs_pp")
+        prior = snap.get("prior_observation_date")
+        latest = snap.get("latest_observation_date")
+        if bps is None:
+            return "相对上一有效观测：null"
+        return (
+            f"{bps:+.1f} bps（{pp:+.3f} 百分点；观测 {prior} → {latest}）"
+        )
+
+    chg = snap.get("chg_1d_pct")
+    if chg is None:
+        return "相对上一有效观测：null"
     return f"相对上一有效观测约 {chg:+.2f}%"
 
 
@@ -57,7 +67,7 @@ def build_daily_report(
     lines = [
         f"# 黄金宏观数据日报 {report_date}",
         "",
-        f"> 生成时间 (UTC): {now}  ·  run_id: `{run_id}`  ·  schema **v0.5**",
+        f"> 生成时间 (UTC): {now}  ·  run_id: `{run_id}`  ·  schema **v0.7**",
         ">",
         "> **职责边界**：本报告仅含市场数据快照与新闻采集清单。",
         "> 不包含事件聚类、黄金利多/利空判定或 most_likely 因果结论（由后续 ChatGPT 阅读 `data/news/` 完成）。",
@@ -97,7 +107,6 @@ def build_daily_report(
             )
             continue
         chg = _chg_note(indicators, key, kind)
-        # dxy_change_pct already is a day change from provider
         if key == "dxy_change_pct" and p.value is not None:
             chg = f"源内计算 {p.value:+.3f}%"
         fetched = (p.fetched_at_utc or "—")[:19]
@@ -113,23 +122,30 @@ def build_daily_report(
     else:
         lines.append("- 无额外提示")
 
+    trunc = news_stats.get("possible_truncation")
+    trunc_feeds = news_stats.get("possibly_truncated_feeds") or []
     lines += [
         "",
         "## B. 新闻采集总览",
         "",
+        f"- 时间窗口：**最近 {news_stats.get('lookback_hours', '—')} 小时**",
         f"- 原始拉取条数：**{news_stats.get('raw_fetched', '—')}**",
         f"- 确定性去重后：**{news_stats.get('after_deterministic_dedupe', len(news_articles))}**",
         f"- 精确重复丢弃：**{news_stats.get('exact_dupes_dropped', '—')}**",
-        f"- 仅 RSS 摘要：**{news_stats.get('rss_summary_only', '—')}**",
+        f"- 仅标题（无真实摘要）：**{news_stats.get('title_only', '—')}**",
+        f"- RSS 摘要：**{news_stats.get('rss_summary_only', '—')}**",
         f"- 全文可用：**{news_stats.get('full_text_available', 0)}**",
         f"- 真实媒体名未确认：**{news_stats.get('unknown_source_name', '—')}**",
         f"- Google News 跳转 URL：**{news_stats.get('google_news_redirect_urls', '—')}**",
-        f"- 回溯窗口：{news_stats.get('lookback_hours', '—')} 小时",
         f"- 单源上限：{news_stats.get('per_feed_cap', '—')}",
+        f"- **可能截断**：{'是 — ' + ', '.join(trunc_feeds) if trunc else '否'}",
         "",
         "**以上数字仅描述采集覆盖，不是独立事件数，也不代表市场重要性。**",
         "",
     ]
+    if news_stats.get("truncation_note"):
+        lines.append(f"> {news_stats['truncation_note']}")
+        lines.append("")
 
     failed = news_stats.get("failed_feeds") or []
     if failed:
@@ -142,13 +158,6 @@ def build_daily_report(
     if per_topic:
         lines.append("### 各主题拉取计数（去重前）")
         for k, v in sorted(per_topic.items(), key=lambda x: -x[1]):
-            lines.append(f"- {k}: {v}")
-        lines.append("")
-
-    per_feed = news_stats.get("per_feed_counts") or {}
-    if per_feed:
-        lines.append("### 各 Feed 拉取计数（去重前）")
-        for k, v in sorted(per_feed.items(), key=lambda x: -x[1]):
             lines.append(f"- {k}: {v}")
         lines.append("")
 
@@ -179,12 +188,13 @@ def build_daily_report(
             title_s = (a.get("title") or "").replace("|", "/")[:120]
             src = a.get("source_name") or "未确认"
             topic = a.get("search_topic") or a.get("source_feed") or "—"
-            summary = (a.get("summary") or "").replace("|", "/")[:100]
+            summary = a.get("summary")
+            summary_s = (summary.replace("|", "/")[:100] if summary else "（无摘要）")
             url = a.get("original_url") or ""
-            flag = "⚠跳转" if a.get("url_is_google_news_redirect") else "原文"
+            flag = "⚠跳转未解析" if a.get("url_is_google_news_redirect") else "原文"
             status = a.get("content_status") or "—"
             lines.append(
-                f"| {pub} | {title_s} | {src} | {topic} | {summary} "
+                f"| {pub} | {title_s} | {src} | {topic} | {summary_s} "
                 f"| [{flag}]({url}) | {status} |"
             )
         if len(rows) > MD_NEWS_PREVIEW_LIMIT:

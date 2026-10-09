@@ -19,7 +19,24 @@ permissions:
   contents: write
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: pip install -r requirements.txt
+      - name: Pytest (must pass)
+        env:
+          PYTHONPATH: src
+        run: pytest -q tests/
+
   run:
+    needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -68,3 +85,4 @@ jobs:
           echo "- Report date input: ${{ inputs.report_date || 'today' }}" >> $GITHUB_STEP_SUMMARY
           echo "- FRED_API_KEY set: ${{ secrets.FRED_API_KEY != '' }}" >> $GITHUB_STEP_SUMMARY
           ls -la reports/ 2>/dev/null | tail -5 >> $GITHUB_STEP_SUMMARY || true
+          ls -la data/news/ 2>/dev/null | tail -5 >> $GITHUB_STEP_SUMMARY || true
