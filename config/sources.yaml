@@ -1,4 +1,4 @@
-# Data source configuration. Validate every provider before treating as stable.
+# Data source configuration. Validated 2026-10-09 where noted.
 
 fred:
   base_url: "https://api.stlouisfed.org/fred"
@@ -23,29 +23,35 @@ fred:
       description: "Nominal Broad U.S. Dollar Index"
       unit: index
       expected_lag_days: 2
-      enabled: false  # enable after verification
+      enabled: false
 
 gold_price:
-  # Provider candidates must be tested for ToS, accessibility, fields, update time.
-  # Do NOT treat any untested endpoint as stable.
-  primary: "placeholder"  # replace after validation
-  candidates:
-    - name: "yahoo_finance_gc"
-      notes: "GC=F continuous futures; verify license & field mapping"
-    - name: "stooq"
-      notes: "Public CSV; verify availability & terms"
+  primary: goldprice_dev
+  validated: "2026-10-09"
+  notes: "GET https://api.goldprice.dev/v1/prices?symbol=XAU-USD-SPOT — no key; check is_stale"
 
 china_etf_159934:
-  primary: "placeholder"
-  candidates:
-    - name: "eastmoney"
-      notes: "Common public source for A-share ETFs; verify fields & ToS"
-    - name: "sina"
-      notes: "Alternative; verify consistency of NAV vs market price"
+  primary: yahoo_chart
+  validated: "2026-10-09"
+  notes: "Yahoo 159934.SZ chart API — exchange price, not NAV"
 
-news:
-  reuse:
-    - repo: "bym0122/global-news-24h"
-      notes: "Prefer reading existing artifacts over re-scraping"
-    - repo: "bym0122/larijani-iran-monitor"
-      notes: "Geopolitical events; optional"
+fx:
+  usd_cny: yahoo_cny_x
+  validated: "2026-10-09"
+
+cot:
+  primary: futuresbench_csv
+  url: "https://futuresbench.com/data/cot/gold.csv"
+  validated: "2026-10-09"
+  notes: "Weekly; report_date is positions as-of, not release day"
+
+fiscal:
+  debt_to_penny: "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/debt_to_penny"
+  interest_expense: "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/interest_expense"
+  validated: "2026-10-09"
+  notes: "No API key required"
+
+wgc:
+  auto: false
+  manual_csv: "data/manual/wgc_etf_flows.csv"
+  portal: "https://www.gold.org/goldhub/data/gold-etfs-holdings-and-flows"
