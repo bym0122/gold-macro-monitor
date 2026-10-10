@@ -1,8 +1,8 @@
 {
   "schema_version": "daily_v0.8",
-  "run_id": "68d98df5",
+  "run_id": "9ef03f36",
   "report_date": "2026-10-10",
-  "generated_at_utc": "2026-10-10T00:41:02.517487+00:00",
+  "generated_at_utc": "2026-10-10T03:35:27.290255+00:00",
   "metrics": [
     {
       "metric": "us_10y_real_yield",
@@ -11,7 +11,7 @@
       "source": "FRED",
       "source_url": "https://fred.stlouisfed.org/series/DFII10",
       "observation_date": "2026-10-08",
-      "fetched_at_utc": "2026-10-10T00:40:56.112564+00:00",
+      "fetched_at_utc": "2026-10-10T03:35:18.986778+00:00",
       "status": "ok",
       "notes": ""
     },
@@ -22,7 +22,7 @@
       "source": "FRED",
       "source_url": "https://fred.stlouisfed.org/series/DGS10",
       "observation_date": "2026-10-08",
-      "fetched_at_utc": "2026-10-10T00:40:56.493113+00:00",
+      "fetched_at_utc": "2026-10-10T03:35:19.339573+00:00",
       "status": "ok",
       "notes": ""
     },
@@ -33,7 +33,7 @@
       "source": "FRED",
       "source_url": "https://fred.stlouisfed.org/series/T10YIE",
       "observation_date": "2026-10-09",
-      "fetched_at_utc": "2026-10-10T00:40:56.683001+00:00",
+      "fetched_at_utc": "2026-10-10T03:35:19.534217+00:00",
       "status": "ok",
       "notes": ""
     },
@@ -44,7 +44,7 @@
       "source": "goldprice.dev",
       "source_url": "https://api.goldprice.dev/v1/prices?symbol=XAU-USD-SPOT",
       "observation_date": "2026-10-09",
-      "fetched_at_utc": "2026-10-10T00:40:56.683021+00:00",
+      "fetched_at_utc": "2026-10-10T03:35:19.534241+00:00",
       "status": "stale",
       "notes": "contract_type=spot; computed_at=2026-10-09T21:08:01.161853+00:00; source marked is_stale=true"
     },
@@ -55,7 +55,7 @@
       "source": "Yahoo Finance",
       "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/159934.SZ?interval=1d&range=5d",
       "observation_date": "2026-10-09",
-      "fetched_at_utc": "2026-10-10T00:40:57.063100+00:00",
+      "fetched_at_utc": "2026-10-10T03:35:19.923172+00:00",
       "status": "ok",
       "notes": "exchange last/close; not fund NAV"
     },
@@ -66,18 +66,18 @@
       "source": "Yahoo Finance",
       "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/159934.SZ?interval=1d&range=5d",
       "observation_date": "2026-10-09",
-      "fetched_at_utc": "2026-10-10T00:40:57.063100+00:00",
+      "fetched_at_utc": "2026-10-10T03:35:19.923172+00:00",
       "status": "ok",
       "notes": "regularMarketChangePercent"
     },
     {
       "metric": "usd_cny",
-      "value": 6.683,
+      "value": 6.6922,
       "unit": "CNY per USD",
       "source": "Yahoo Finance",
       "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/CNY=X?interval=1d&range=5d",
-      "observation_date": "2026-10-09",
-      "fetched_at_utc": "2026-10-10T00:40:57.130780+00:00",
+      "observation_date": "2026-10-10",
+      "fetched_at_utc": "2026-10-10T03:35:20.014615+00:00",
       "status": "ok",
       "notes": "CNY=X last; offshore-ish FX quote via Yahoo"
     },
@@ -88,7 +88,7 @@
       "source": "Yahoo Finance DX-Y.NYB",
       "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?interval=1d&range=5d",
       "observation_date": "2026-10-09",
-      "fetched_at_utc": "2026-10-10T00:40:57.202764+00:00",
+      "fetched_at_utc": "2026-10-10T03:35:20.079435+00:00",
       "status": "ok",
       "notes": "ICE US Dollar Index futures quote via Yahoo"
     },
@@ -99,7 +99,7 @@
       "source": "Yahoo Finance DX-Y.NYB",
       "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?interval=1d&range=5d",
       "observation_date": "2026-10-09",
-      "fetched_at_utc": "2026-10-10T00:40:57.202764+00:00",
+      "fetched_at_utc": "2026-10-10T03:35:20.079435+00:00",
       "status": "ok",
       "notes": "vs chartPreviousClose=102.17"
     },
@@ -110,7 +110,7 @@
       "source": "CFTC via futuresbench",
       "source_url": "https://futuresbench.com/data/cot/gold.csv",
       "observation_date": "2026-10-06",
-      "fetched_at_utc": "2026-10-10T00:40:57.278763+00:00",
+      "fetched_at_utc": "2026-10-10T03:35:20.193053+00:00",
       "status": "ok",
       "notes": "positions as-of 2026-10-06; weekly COT; not same-day"
     },
@@ -121,7 +121,7 @@
       "source": "CFTC via futuresbench",
       "source_url": "https://futuresbench.com/data/cot/gold.csv",
       "observation_date": "2026-10-06",
-      "fetched_at_utc": "2026-10-10T00:40:57.278763+00:00",
+      "fetched_at_utc": "2026-10-10T03:35:20.193053+00:00",
       "status": "ok",
       "notes": "positions as-of 2026-10-06; weekly COT; not same-day"
     },
@@ -132,7 +132,7 @@
       "source": "CFTC via futuresbench",
       "source_url": "https://futuresbench.com/data/cot/gold.csv",
       "observation_date": "2026-10-06",
-      "fetched_at_utc": "2026-10-10T00:40:57.278763+00:00",
+      "fetched_at_utc": "2026-10-10T03:35:20.193053+00:00",
       "status": "ok",
       "notes": "positions as-of 2026-10-06; weekly COT; not same-day"
     },
@@ -143,7 +143,7 @@
       "source": "WGC",
       "source_url": "https://www.gold.org/goldhub/data/gold-etfs-holdings-and-flows",
       "observation_date": null,
-      "fetched_at_utc": "2026-10-10T00:40:57.839497+00:00",
+      "fetched_at_utc": "2026-10-10T03:35:20.848535+00:00",
       "status": "missing",
       "notes": "暂无最新 WGC 自动数据；WGC 非每日硬依赖。勿将上月流量解释为今日流入。门户: https://www.gold.org/goldhub/data/gold-etfs-holdings-and-flows"
     },
@@ -154,7 +154,7 @@
       "source": "WGC",
       "source_url": "https://www.gold.org/goldhub/data/gold-etfs-holdings-and-flows",
       "observation_date": null,
-      "fetched_at_utc": "2026-10-10T00:40:57.839497+00:00",
+      "fetched_at_utc": "2026-10-10T03:35:20.848535+00:00",
       "status": "missing",
       "notes": "暂无最新 WGC 自动数据；WGC 非每日硬依赖。勿将上月流量解释为今日流入。门户: https://www.gold.org/goldhub/data/gold-etfs-holdings-and-flows"
     },
@@ -165,7 +165,7 @@
       "source": "FiscalData",
       "source_url": "https://fiscaldata.treasury.gov/datasets/debt-to-the-penny/debt-to-the-penny",
       "observation_date": "2026-10-08",
-      "fetched_at_utc": "2026-10-10T00:40:57.839519+00:00",
+      "fetched_at_utc": "2026-10-10T03:35:20.848562+00:00",
       "status": "ok",
       "notes": "debt_held_public=32454086117711.32; intragov=7851230093118.40"
     },
@@ -176,7 +176,7 @@
       "source": "FiscalData",
       "source_url": "https://fiscaldata.treasury.gov/datasets/interest-expense-debt-outstanding/",
       "observation_date": "2026-09-30",
-      "fetched_at_utc": "2026-10-10T00:40:58.532005+00:00",
+      "fetched_at_utc": "2026-10-10T03:35:21.452759+00:00",
       "status": "ok",
       "notes": "sum of fytd_expense_amt for latest record_date lines; monthly lag"
     }
@@ -236,10 +236,10 @@
       "kind": "yield"
     },
     "usd_cny": {
-      "history_points": 1,
-      "latest_observation_date": "2026-10-09",
-      "prior_observation_date": null,
-      "chg_1d_pct": null,
+      "history_points": 2,
+      "latest_observation_date": "2026-10-10",
+      "prior_observation_date": "2026-10-09",
+      "chg_1d_pct": 0.13766272632051288,
       "chg_5d_pct": null,
       "chg_1_obs_pp": null,
       "chg_1_obs_bps": null,
@@ -295,7 +295,7 @@
       {
         "feed": "GN-NFP",
         "search_topic": "us_nfp_employment",
-        "fetched": 15,
+        "fetched": 37,
         "possible_truncation": false,
         "error": null
       },
@@ -309,7 +309,7 @@
       {
         "feed": "GN-PCE-FOMC",
         "search_topic": "us_pce_fomc",
-        "fetched": 24,
+        "fetched": 21,
         "possible_truncation": false,
         "error": null
       },
@@ -321,22 +321,22 @@
         "error": null
       }
     ],
-    "raw_count": 315,
-    "after_deterministic_dedupe": 312,
+    "raw_count": 334,
+    "after_deterministic_dedupe": 331,
     "duplicates_dropped": 3,
     "possible_truncation_any": true,
-    "fetched_at_utc": "2026-10-10T00:40:59.769392+00:00"
+    "fetched_at_utc": "2026-10-10T03:35:23.379184+00:00"
   },
   "calendar_stats": {
-    "new_fetched": 1,
-    "merged_total": 1,
+    "new_fetched": 20,
+    "merged_total": 20,
     "upcoming_7d_count": 0,
     "recent_14d_count": 1,
     "errors": [
-      "BLS ICS: HTTPError: 403 Client Error: Forbidden for url: https://www.bls.gov/schedule/news_release/bls.ics"
+      "BLS ICS: HTTP 403 Forbidden (https://www.bls.gov/schedule/news_release/bls.ics); BLS HTML: HTTP 403 (https://www.bls.gov/schedule/2026/09_sched_list.htm); BLS HTML: HTTP 403 (https://www.bls.gov/schedule/2026/10_sched_list.htm); BLS HTML: HTTP 403 (https://www.bls.gov/schedule/2026/11_sched_list.htm)"
     ],
     "core_sources_warning": "One or more calendar sources failed; see errors",
-    "note": "Official schedules only. actual/previous/consensus are null unless a future release-value parser is added. past_unverified means the release time passed but this pipeline did not capture published figures."
+    "note": "Official schedules only. actual/previous/consensus are null unless a future release-value parser is added. Future FOMC meetings use scheduled_date with time_status=unverified (no invented clock time)."
   },
   "data_quality_notes": [
     "XAU/USD: stale observation_date=2026-10-09",
