@@ -57,7 +57,7 @@ def _collect_monthly_extras() -> list[MetricPoint]:
 def run_daily(report_date: str | None = None) -> int:
     report_date = report_date or date.today().isoformat()
     run_id = str(uuid.uuid4())[:8]
-    print(f"[gold-monitor] run_id={run_id} report_date={report_date} schema=v0.8")
+    print(f"[gold-monitor] run_id={run_id} report_date={report_date} schema=v0.9")
 
     metrics = _collect_daily()
     metrics.extend(_collect_weekly_extras())
@@ -81,9 +81,10 @@ def run_daily(report_date: str | None = None) -> int:
     try:
         news_result = NewsProvider().collect()
         print(
-            f"[gold-monitor] news raw={news_result.stats.get('raw_fetched')} "
+            f"[gold-monitor] news raw={news_result.stats.get('raw_count')} "
             f"deduped={news_result.stats.get('after_deterministic_dedupe')} "
-            f"failed_feeds={len(news_result.stats.get('failed_feeds') or [])}"
+            f"trunc={news_result.stats.get('possible_truncation_any')} "
+            f"feeds={len(news_result.stats.get('feeds') or [])}"
         )
     except Exception as e:
         print(f"[gold-monitor] news collect failed: {e}")
@@ -106,7 +107,7 @@ def run_daily(report_date: str | None = None) -> int:
     qnotes = data_quality_notes(by_name, ind)
 
     daily_payload = {
-        "schema_version": "daily_v0.8",
+        "schema_version": "daily_v0.9",
         "run_id": run_id,
         "report_date": report_date,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -118,7 +119,7 @@ def run_daily(report_date: str | None = None) -> int:
         "news_collection_stats": news_stats,
         "calendar_stats": (calendar_payload or {}).get("collection_stats"),
         "data_quality_notes": qnotes,
-        "version": "0.8.0",
+        "version": "0.9.0",
         "analysis": None,
         "explanations": None,
         "events": None,
