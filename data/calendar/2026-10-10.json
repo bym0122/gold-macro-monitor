@@ -1,0 +1,61 @@
+{
+  "schema_version": "calendar_v1",
+  "report_date": "2026-10-10",
+  "generated_at_utc": "2026-10-10T00:40:59.096395+00:00",
+  "events": [
+    {
+      "event_id": "99087bfc148611a6",
+      "event_name": "FOMC Meeting Minutes",
+      "category": "fed",
+      "scheduled_at": "2026-10-07T14:00:00-04:00",
+      "timezone": "America/New_York",
+      "status": "past_unverified",
+      "previous": null,
+      "actual": null,
+      "consensus": null,
+      "unit": null,
+      "source_name": "Federal Reserve FOMC Calendars",
+      "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260916.htm",
+      "retrieved_at": "2026-10-10T00:40:59.634636+00:00",
+      "last_updated_at": "2026-10-10T00:40:59.634636+00:00",
+      "data_quality": "partial",
+      "notes": "Minutes linked to meeting end 20260916; publication day approximated as ~3 weeks later (Wed 2pm ET). Treat as partial until Fed posts exact time.",
+      "reference_period": "meeting_end_20260916",
+      "event_subtype": "minutes"
+    }
+  ],
+  "upcoming_7d": [],
+  "recent_14d": [
+    {
+      "event_id": "99087bfc148611a6",
+      "event_name": "FOMC Meeting Minutes",
+      "category": "fed",
+      "scheduled_at": "2026-10-07T14:00:00-04:00",
+      "timezone": "America/New_York",
+      "status": "past_unverified",
+      "previous": null,
+      "actual": null,
+      "consensus": null,
+      "unit": null,
+      "source_name": "Federal Reserve FOMC Calendars",
+      "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260916.htm",
+      "retrieved_at": "2026-10-10T00:40:59.634636+00:00",
+      "last_updated_at": "2026-10-10T00:40:59.634636+00:00",
+      "data_quality": "partial",
+      "notes": "Minutes linked to meeting end 20260916; publication day approximated as ~3 weeks later (Wed 2pm ET). Treat as partial until Fed posts exact time.",
+      "reference_period": "meeting_end_20260916",
+      "event_subtype": "minutes"
+    }
+  ],
+  "collection_stats": {
+    "new_fetched": 1,
+    "merged_total": 1,
+    "upcoming_7d_count": 0,
+    "recent_14d_count": 1,
+    "errors": [
+      "BLS ICS: HTTPError: 403 Client Error: Forbidden for url: https://www.bls.gov/schedule/news_release/bls.ics"
+    ],
+    "core_sources_warning": "One or more calendar sources failed; see errors",
+    "note": "Official schedules only. actual/previous/consensus are null unless a future release-value parser is added. past_unverified means the release time passed but this pipeline did not capture published figures."
+  }
+}
