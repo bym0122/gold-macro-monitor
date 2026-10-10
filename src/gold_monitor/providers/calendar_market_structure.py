@@ -8,7 +8,7 @@ Rules (no external API):
 Official free source:
   - Treasury upcoming auctions via FiscalData API (no key)
 
-CME gold futures calendar is attempted; on failure returns explicit unavailable.
+CME gold futures calendar is attempted; on failure records soft warning only.
 """
 
 from __future__ import annotations
@@ -35,7 +35,6 @@ CME_GOLD_CAL_URL = (
     "https://www.cmegroup.com/markets/metals/precious/gold.calendar.html"
 )
 
-# Terms we care about for gold-macro context (notes/bonds/TIPS; bills optional)
 FOCUS_TERMS = (
     "2-Year",
     "3-Year",
@@ -52,10 +51,7 @@ FOCUS_TERMS = (
 
 
 def _third_friday(year: int, month: int) -> date:
-    """Nth Friday: first Friday then + 14 days."""
-    # weekday: Mon=0 .. Sun=6; Friday=4
     first = date(year, month, 1)
-    # days until first Friday
     delta = (4 - first.weekday()) % 7
     first_fri = first + timedelta(days=delta)
     return first_fri + timedelta(days=14)
@@ -81,7 +77,6 @@ def build_rule_events(
     window_end: date,
     now: datetime,
 ) -> List[CalendarEvent]:
-    """Pure calendar rules. date_type/calculated; not exchange-confirmed."""
     retrieved = now.isoformat()
     events: List[CalendarEvent] = []
 
@@ -120,7 +115,6 @@ def build_rule_events(
                 )
             )
 
-        # Quadruple witching: Mar/Jun/Sep/Dec 3rd Friday
         if m in (3, 6, 9, 12):
             qw = _third_friday(y, m)
             if window_start <= qw <= window_end:
@@ -157,7 +151,6 @@ def fetch_treasury_upcoming(
     window_end: date,
     now: datetime,
 ) -> Tuple[List[CalendarEvent], Optional[str]]:
-    """FiscalData upcoming_auctions — free, no API key."""
     retrieved = now.isoformat()
     params = {
         "filter": f"auction_date:gte:{window_start.isoformat()},auction_date:lte:{window_end.isoformat()}",
@@ -184,7 +177,6 @@ def fetch_treasury_upcoming(
             continue
         stype = (row.get("security_type") or "").strip()
         sterm = (row.get("security_term") or "").strip()
-        # Prefer notes/bonds/TIPS; still include bills for completeness but tag
         focus = any(t.lower() in (sterm + " " + stype).lower() for t in FOCUS_TERMS)
         ann = (row.get("announcemt_date") or row.get("announcement_date") or "").strip()
         issue = (row.get("issue_date") or "").strip()
@@ -224,15 +216,11 @@ def fetch_treasury_upcoming(
 
 
 def fetch_cme_gold_calendar(now: datetime) -> Tuple[List[CalendarEvent], Optional[str]]:
-    """Best-effort CME gold product calendar page.
-
-    Does not invent delivery dates. On failure returns empty + error string.
-    """
     retrieved = now.isoformat()
     try:
         resp = requests.get(
             CME_GOLD_CAL_URL,
-            timeout=30,
+            timeout=20,
             headers={
                 "User-Agent": USER_AGENT,
                 "Accept": "text/html,application/xhtml+xml",
@@ -243,16 +231,12 @@ def fetch_cme_gold_calendar(now: datetime) -> Tuple[List[CalendarEvent], Optiona
         html = resp.text or ""
         if len(html) < 500:
             return [], "CME gold calendar: empty/short response"
-        # Heuristic: look for ISO-like or Month DD, YYYY near Last Trade / First Notice
-        # CME pages are JS-heavy; static HTML often lacks the table.
         if "last trade" not in html.lower() and "first notice" not in html.lower():
             return [], (
                 "CME gold calendar: page has no static Last Trade/First Notice table "
                 "(likely JS-rendered); parse_error"
             )
-        # If table text is present, try crude row extraction — still mark partial
         events: List[CalendarEvent] = []
-        # Match patterns like "GCZ6" or "Dec 2026" near dates YYYY-MM-DD
         for m in re.finditer(
             r"(GC[FGHJKMNQUVXZ]\d{1,2}|G[FGHJKMNQUVXZ]\d{2})"
             r".{0,80}?(\d{4}-\d{2}-\d{2})",
@@ -303,28 +287,50 @@ class MarketStructureCalendarProvider:
     ) -> Tuple[List[CalendarEvent], Optional[str]]:
         now = datetime.now(timezone.utc)
         ws = (window_start or (now - timedelta(days=7))).date()
-        we = (window_end or (now + timedelta(days=60))).date()
+        we = (window_end or (now + timedelta(days=90))).date()
 
         events: List[CalendarEvent] = []
-        errors: List[str] = []
+        soft_errors: List[str] = []
 
-        # 1) Always: calculated rules
+        # 1) Always: calculated rules (hard success path)
         events.extend(build_rule_events(ws, we, now))
 
-        # 2) Treasury upcoming (official free)
+        # 2) Treasury upcoming (official free) — soft fail
         t_evs, t_err = fetch_treasury_upcoming(ws, we, now)
         if t_err:
-            errors.append(t_err)
+            soft_errors.append(t_err)
         else:
             events.extend(t_evs)
 
-        # 3) CME best-effort
+        # 3) CME best-effort — soft fail
         c_evs, c_err = fetch_cme_gold_calendar(now)
         if c_err:
-            errors.append(c_err)
+            soft_errors.append(c_err)
         else:
             events.extend(c_evs)
 
-        err = "; ".join(errors) if errors else None
-        # Rules always produce something in a 60d window → not a hard failure
-        return events, err
+        # Soft errors become a status note event; do NOT fail the whole source
+        if soft_errors:
+            events.append(
+                CalendarEvent(
+                    event_id=make_event_id("ms", "soft_errors", now.isoformat()[:16]),
+                    event_name="Market-structure partial source warnings",
+                    category="market_structure",
+                    scheduled_at=None,
+                    scheduled_date=None,
+                    timezone="America/New_York",
+                    status="unavailable",
+                    source_name="market_structure",
+                    source_url="",
+                    retrieved_at=now.isoformat(),
+                    last_updated_at=now.isoformat(),
+                    data_quality="partial",
+                    notes="; ".join(soft_errors),
+                    event_type="source_status",
+                    event_subtype="soft_warning",
+                    time_status="unavailable",
+                )
+            )
+
+        # Rules always produce events in a 90d window → never hard-fail
+        return events, None
