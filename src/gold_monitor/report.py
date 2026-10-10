@@ -47,10 +47,29 @@ def _chg_note(indicators: dict[str, Any], metric: str, kind: str = "pct") -> str
     return f"相对上一有效观测约 {chg:+.2f}%"
 
 
+def _event_date(ev: dict[str, Any]) -> str:
+    return (
+        ev.get("scheduled_date")
+        or (ev.get("scheduled_at") or "")[:10]
+        or ev.get("date")
+        or ev.get("start_date")
+        or "—"
+    )
+
+
+def _event_name(ev: dict[str, Any]) -> str:
+    return (
+        ev.get("event_name")
+        or ev.get("title")
+        or ev.get("name")
+        or "—"
+    ).replace("|", "/")[:80]
+
+
 def _render_calendar_section(calendar_payload: dict[str, Any] | None, report_date: str) -> list[str]:
     lines: list[str] = [
         "",
-        "## B. 官方经济日历（BLS / BEA / FOMC）",
+        "## B. 官方经济日历（BLS / BEA / FOMC / 市场结构 / 国债）",
         "",
     ]
     if not calendar_payload:
@@ -59,17 +78,21 @@ def _render_calendar_section(calendar_payload: dict[str, Any] | None, report_dat
         return lines
 
     stats = calendar_payload.get("collection_stats") or {}
+    dq = calendar_payload.get("data_quality") or {}
     cal_path = calendar_payload.get("path") or f"data/calendar/{report_date}.json"
     lines += [
+        f"- schema：**{calendar_payload.get('schema_version', '—')}**",
         f"- 合并事件总数：**{stats.get('merged_total', '—')}**",
         f"- 未来 7 天：**{stats.get('upcoming_7d_count', '—')}**",
         f"- 近 14 天：**{stats.get('recent_14d_count', '—')}**",
+        f"- 来源成功：{', '.join(dq.get('sources_ok') or []) or '—'}",
+        f"- 来源失败：{', '.join(dq.get('sources_failed') or []) or '无'}",
         f"- 完整 JSON：[`{cal_path}`](../{cal_path})",
         "",
     ]
     errors = stats.get("errors") or []
     if errors:
-        lines.append("### 采集错误")
+        lines.append("### 采集错误 / 降级")
         for e in errors:
             lines.append(f"- {e}")
         lines.append("")
@@ -81,17 +104,22 @@ def _render_calendar_section(calendar_payload: dict[str, Any] | None, report_dat
             lines.append("（无）")
             lines.append("")
             return
-        lines.append("| 日期 | 事件 | 来源 | 子类型 | 数据质量 | 实际值 |")
-        lines.append("|------|------|------|--------|----------|--------|")
+        lines.append("| 日期 | 事件 | 来源 | 类型 | 数据质量 | 实际值 |")
+        lines.append("|------|------|------|------|----------|--------|")
         for ev in events[:40]:
-            d = ev.get("date") or ev.get("start_date") or "—"
-            name = (ev.get("title") or ev.get("name") or "—").replace("|", "/")[:80]
-            src = ev.get("source") or "—"
-            subtype = ev.get("event_subtype") or ev.get("subtype") or "—"
-            dq = ev.get("data_quality") or "—"
+            d = _event_date(ev)
+            name = _event_name(ev)
+            src = ev.get("source_name") or ev.get("source") or "—"
+            subtype = (
+                ev.get("event_type")
+                or ev.get("event_subtype")
+                or ev.get("subtype")
+                or "—"
+            )
+            dqv = ev.get("data_quality") or ev.get("status") or "—"
             actual = ev.get("actual")
             actual_s = "null" if actual is None else str(actual)
-            lines.append(f"| {d} | {name} | {src} | {subtype} | {dq} | {actual_s} |")
+            lines.append(f"| {d} | {name} | {src} | {subtype} | {dqv} | {actual_s} |")
         if len(events) > 40:
             lines.append("")
             lines.append(f"> 另有 **{len(events) - 40}** 条仅在 JSON 中。")
@@ -99,6 +127,93 @@ def _render_calendar_section(calendar_payload: dict[str, Any] | None, report_dat
 
     _emit_events("未来 7 天", "upcoming_7d")
     _emit_events("近 14 天（含今日）", "recent_14d")
+    _emit_events("Fed / FOMC", "fed_calendar")
+    _emit_events("经济数据（BLS/BEA）", "economic_calendar")
+    _emit_events("国债拍卖", "treasury_calendar")
+    _emit_events("市场结构（规则日期）", "market_structure_calendar")
+    _emit_events("黄金衍生品", "gold_derivatives_calendar")
+    return lines
+
+
+def _news_quality_block(
+    news_stats: dict[str, Any],
+    news_articles: list[dict[str, Any]],
+) -> list[str]:
+    """Map actual NewsProvider stats keys + derive content_status counts."""
+    raw = news_stats.get("raw_count", news_stats.get("raw_fetched"))
+    dropped = news_stats.get("duplicates_dropped", news_stats.get("exact_dupes_dropped"))
+    after = news_stats.get("after_deterministic_dedupe", len(news_articles))
+    trunc_any = news_stats.get("possible_truncation_any", news_stats.get("possible_truncation"))
+
+    feeds = news_stats.get("feeds") or []
+    trunc_feeds = [
+        f.get("feed") for f in feeds if f.get("possible_truncation")
+    ]
+    failed = [
+        f"{f.get('feed')}: {f.get('error')}"
+        for f in feeds
+        if f.get("error")
+    ]
+    if not failed:
+        failed = list(news_stats.get("failed_feeds") or [])
+
+    title_only = news_stats.get("title_only")
+    rss_only = news_stats.get("rss_summary_only")
+    full_text = news_stats.get("full_text_count", news_stats.get("full_text_available"))
+    if title_only is None or rss_only is None:
+        c_title = sum(1 for a in news_articles if a.get("content_status") == "title_only")
+        c_rss = sum(1 for a in news_articles if a.get("content_status") == "rss_summary_only")
+        c_full = sum(
+            1
+            for a in news_articles
+            if a.get("content_status") in ("full_text", "full_text_available")
+        )
+        title_only = c_title if title_only is None else title_only
+        rss_only = c_rss if rss_only is None else rss_only
+        full_text = c_full if full_text is None else full_text
+
+    unknown_src = news_stats.get("unknown_source_name")
+    if unknown_src is None:
+        unknown_src = sum(1 for a in news_articles if not a.get("source_name"))
+
+    redirect_n = news_stats.get("unresolved_redirect_count")
+    if redirect_n is None:
+        redirect_n = sum(1 for a in news_articles if a.get("url_is_google_news_redirect"))
+
+    lines = [
+        "## C. 新闻采集总览",
+        "",
+        f"- 时间窗口：**最近 {news_stats.get('lookback_hours', '—')} 小时**",
+        f"- 原始拉取条数：**{raw if raw is not None else '—'}**",
+        f"- 确定性去重后：**{after}**",
+        f"- 精确重复丢弃：**{dropped if dropped is not None else '—'}**",
+        f"- 仅标题（无真实摘要）：**{title_only if title_only is not None else '—'}**",
+        f"- RSS 摘要：**{rss_only if rss_only is not None else '—'}**",
+        f"- 全文可用：**{full_text if full_text is not None else 0}**",
+        f"- 真实媒体名未确认：**{unknown_src}**",
+        f"- Google News 跳转 URL：**{redirect_n}**",
+        f"- 单源上限：{news_stats.get('per_feed_cap', '—')}",
+        f"- **可能截断**：{'是 — ' + ', '.join(str(x) for x in trunc_feeds) if trunc_any else '否'}",
+        "",
+        "**以上数字仅描述采集覆盖，不是独立事件数，也不代表市场重要性。**",
+        "",
+    ]
+    if feeds:
+        lines.append("### 各 Feed 拉取计数")
+        for f in feeds:
+            flag = " ⚠trunc" if f.get("possible_truncation") else ""
+            err = f" ERROR={f.get('error')}" if f.get("error") else ""
+            lines.append(
+                f"- {f.get('feed')}: fetched={f.get('fetched')}{flag}{err}"
+            )
+        lines.append("")
+
+    if failed:
+        lines.append("### 失败信息源")
+        for f in failed:
+            lines.append(f"- `{f}`")
+        lines.append("")
+
     return lines
 
 
@@ -123,7 +238,7 @@ def build_daily_report(
     lines = [
         f"# 黄金宏观数据日报 {report_date}",
         "",
-        f"> 生成时间 (UTC): {now}  ·  run_id: `{run_id}`  ·  schema **v0.8**",
+        f"> 生成时间 (UTC): {now}  ·  run_id: `{run_id}`  ·  schema **v0.9**",
         ">",
         "> **职责边界**：本报告仅含市场数据快照、官方日历与新闻采集清单。",
         "> 不包含事件聚类、黄金利多/利空判定或 most_likely 因果结论（由后续 ChatGPT 阅读 `data/news/` 完成）。",
@@ -179,44 +294,7 @@ def build_daily_report(
         lines.append("- 无额外提示")
 
     lines += _render_calendar_section(calendar_payload, report_date)
-
-    trunc = news_stats.get("possible_truncation")
-    trunc_feeds = news_stats.get("possibly_truncated_feeds") or []
-    lines += [
-        "## C. 新闻采集总览",
-        "",
-        f"- 时间窗口：**最近 {news_stats.get('lookback_hours', '—')} 小时**",
-        f"- 原始拉取条数：**{news_stats.get('raw_fetched', '—')}**",
-        f"- 确定性去重后：**{news_stats.get('after_deterministic_dedupe', len(news_articles))}**",
-        f"- 精确重复丢弃：**{news_stats.get('exact_dupes_dropped', '—')}**",
-        f"- 仅标题（无真实摘要）：**{news_stats.get('title_only', '—')}**",
-        f"- RSS 摘要：**{news_stats.get('rss_summary_only', '—')}**",
-        f"- 全文可用：**{news_stats.get('full_text_available', 0)}**",
-        f"- 真实媒体名未确认：**{news_stats.get('unknown_source_name', '—')}**",
-        f"- Google News 跳转 URL：**{news_stats.get('google_news_redirect_urls', '—')}**",
-        f"- 单源上限：{news_stats.get('per_feed_cap', '—')}",
-        f"- **可能截断**：{'是 — ' + ', '.join(trunc_feeds) if trunc else '否'}",
-        "",
-        "**以上数字仅描述采集覆盖，不是独立事件数，也不代表市场重要性。**",
-        "",
-    ]
-    if news_stats.get("truncation_note"):
-        lines.append(f"> {news_stats['truncation_note']}")
-        lines.append("")
-
-    failed = news_stats.get("failed_feeds") or []
-    if failed:
-        lines.append("### 失败信息源")
-        for f in failed:
-            lines.append(f"- `{f}`")
-        lines.append("")
-
-    per_topic = news_stats.get("per_topic_counts") or {}
-    if per_topic:
-        lines.append("### 各主题拉取计数（去重前）")
-        for k, v in sorted(per_topic.items(), key=lambda x: -x[1]):
-            lines.append(f"- {k}: {v}")
-        lines.append("")
+    lines += _news_quality_block(news_stats, news_articles)
 
     news_link = news_json_path or f"data/news/{report_date}.json"
     lines += [
