@@ -108,3 +108,28 @@ def test_article_id_stable():
     id2 = _article_id("https://example.com/z", "Hello")
     assert id1 == id2
     assert id1 != _article_id("https://example.com/other", "Hello")
+
+def test_stats_schema_keys():
+    """Provider stats must expose keys the report reads (no more em-dash gaps)."""
+    required = {
+        "raw_fetched", "raw_count",
+        "after_deterministic_dedupe", "deduped_count",
+        "exact_dupes_dropped", "duplicates_dropped",
+        "title_only", "title_only_count",
+        "rss_summary_only", "rss_summary_only_count",
+        "full_text_available", "full_text_count",
+        "google_news_redirect_urls", "unresolved_redirect_count",
+        "possible_truncation", "possibly_truncated_feeds",
+    }
+    stats = {
+        "raw_count": 0, "raw_fetched": 0,
+        "deduped_count": 0, "after_deterministic_dedupe": 0,
+        "duplicates_dropped": 0, "exact_dupes_dropped": 0,
+        "title_only_count": 0, "title_only": 0,
+        "rss_summary_only_count": 0, "rss_summary_only": 0,
+        "full_text_count": 0, "full_text_available": 0,
+        "unresolved_redirect_count": 0, "google_news_redirect_urls": 0,
+        "possible_truncation": False, "possibly_truncated_feeds": [],
+    }
+    missing = required - set(stats.keys())
+    assert not missing, f"missing keys: {missing}"
