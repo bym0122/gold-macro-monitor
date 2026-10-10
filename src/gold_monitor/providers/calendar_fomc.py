@@ -1,1 +1,157 @@
-"""Fed FOMC calendar: meetings, statements, press conferences, minutes.\n\nParses both published links and upcoming meeting dates from the official\ncalendar table so future meetings (without live statement HTML yet) still\nappear as scheduled events.\n"""\n\nfrom __future__ import annotations\n\nimport re\nfrom datetime import datetime, timezone, timedelta\nfrom typing import Optional\n\nimport requests\n\nfrom .calendar_common import (\n    CalendarEvent,\n    ET,\n    et_to_iso,\n    make_event_id,\n    status_from_schedule,\n)\n\nFOMC_URL = \"https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm\"\nUSER_AGENT = \"gold-macro-monitor/0.9 (research; calendar; +https://github.com/bym0122/gold-macro-monitor)\"\nBASE = \"https://www.federalreserve.gov\"\n\nMONTH_MAP = {\n    \"january\": 1, \"february\": 2, \"march\": 3, \"april\": 4,\n    \"may\": 5, \"june\": 6, \"july\": 7, \"august\": 8,\n    \"september\": 9, \"october\": 10, \"november\": 11, \"december\": 12,\n}\n\n\ndef _yyyymmdd_to_et_afternoon(yyyymmdd: str, hour: int = 14, minute: int = 0) -> datetime:\n    y = int(yyyymmdd[0:4])\n    m = int(yyyymmdd[4:6])\n    d = int(yyyymmdd[6:8])\n    return datetime(y, m, d, hour, minute, tzinfo=ET)\n\n\ndef _parse_meeting_end_day(date_str: str, month_name: str, year: int) -> Optional[str]:\n    if not date_str or not month_name:\n        return None\n    m = MONTH_MAP.get(month_name.strip().lower())\n    if not m:\n        return None\n    cleaned = date_str.replace(\"*\", \"\").strip()\n    parts = re.split(r\"[-–]\", cleaned)\n    try:\n        day = int(parts[-1].strip())\n    except ValueError:\n        return None\n    return f\"{year:04d}{m:02d}{day:02d}\"\n\n\ndef parse_fomc_html(html: str, now: Optional[datetime] = None) -> list[CalendarEvent]:\n    now = now or datetime.now(timezone.utc)\n    retrieved = now.isoformat()\n    events: list[CalendarEvent] = []\n    seen_statement: set[str] = set()\n    seen_press: set[str] = set()\n    seen_minutes: set[str] = set()\n\n    statement_dates = sorted(set(re.findall(r\"/newsevents/pressreleases/monetary(20\\d{6})a\\.htm\", html)))\n    press_dates = sorted(set(re.findall(r\"/monetarypolicy/fomcpres+conf(20\\d{6})\\.htm\", html, re.I)))\n    minutes_dates = sorted(set(re.findall(r\"/monetarypolicy/fomcminutes(20\\d{6})(?:\\.htm|/)\", html)))\n\n    for ymd in statement_dates:\n        seen_statement.add(ymd)\n        dt = _yyyymmdd_to_et_afternoon(ymd, 14, 0)\n        scheduled = et_to_iso(dt)\n        url = f\"{BASE}/newsevents/pressreleases/monetary{ymd}a.htm\"\n        events.append(CalendarEvent(\n            event_id=make_event_id(\"fomc\", \"statement\", ymd),\n            event_name=\"FOMC Statement / Rate Decision\", category=\"fed\",\n            scheduled_at=scheduled, timezone=\"America/New_York\",\n            status=status_from_schedule(scheduled, now),\n            source_name=\"Federal Reserve FOMC Calendars\", source_url=url,\n            retrieved_at=retrieved, last_updated_at=retrieved, data_quality=\"official\",\n            notes=\"Time assumed 2:00 p.m. ET standard window\", event_subtype=\"statement\",\n        ))\n\n    for ymd in press_dates:\n        seen_press.add(ymd)\n        dt = _yyyymmdd_to_et_afternoon(ymd, 14, 30)\n        scheduled = et_to_iso(dt)\n        url = f\"{BASE}/monetarypolicy/fomcpresconf{ymd}.htm\"\n        events.append(CalendarEvent(\n            event_id=make_event_id(\"fomc\", \"press_conference\", ymd),\n            event_name=\"FOMC Press Conference\", category=\"fed\",\n            scheduled_at=scheduled, timezone=\"America/New_York\",\n            status=status_from_schedule(scheduled, now),\n            source_name=\"Federal Reserve FOMC Calendars\", source_url=url,\n            retrieved_at=retrieved, last_updated_at=retrieved, data_quality=\"official\",\n            notes=\"Time assumed 2:30 p.m. ET\", event_subtype=\"press_conference\",\n        ))\n\n    for ymd in minutes_dates:\n        seen_minutes.add(ymd)\n        url = f\"{BASE}/monetarypolicy/fomcminutes{ymd}.htm\"\n        meet = _yyyymmdd_to_et_afternoon(ymd, 14, 0)\n        approx_pub = meet + timedelta(days=21)\n        while approx_pub.weekday() != 2:\n            approx_pub += timedelta(days=1)\n        approx_pub = approx_pub.replace(hour=14, minute=0)\n        scheduled = et_to_iso(approx_pub)\n        events.append(CalendarEvent(\n            event_id=make_event_id(\"fomc\", \"minutes\", ymd),\n            event_name=\"FOMC Meeting Minutes\", category=\"fed\",\n            scheduled_at=scheduled, timezone=\"America/New_York\",\n            status=status_from_schedule(scheduled, now),\n            source_name=\"Federal Reserve FOMC Calendars\", source_url=url,\n            retrieved_at=retrieved, last_updated_at=retrieved, data_quality=\"partial\",\n            notes=f\"Minutes linked to meeting end {ymd}; approx +3 weeks Wed 2pm ET\",\n            reference_period=f\"meeting_end_{ymd}\", event_subtype=\"minutes\",\n        ))\n\n    # CRITICAL FIX: allow optional <a> inside <h4> year headers\n    year_blocks = re.split(\n        r'(?i)<h4[^>]*>\\s*(?:<a[^>]*>)?\\s*(\\d{4})\\s+FOMC\\s+Meetings',\n        html,\n    )\n    i = 1\n    while i + 1 < len(year_blocks):\n        try:\n            year = int(year_blocks[i].strip())\n        except ValueError:\n            i += 2\n            continue\n        body = year_blocks[i + 1]\n        months = re.findall(\n            r'fomc-meeting__month[^>]*>\\s*<strong>\\s*([A-Za-z]+)\\s*</strong>',\n            body, flags=re.I,\n        )\n        dates = re.findall(\n            r'fomc-meeting__date[^>]*>\\s*([^<]+)',\n            body, flags=re.I,\n        )\n        for month_name, date_str in zip(months, dates):\n            ymd = _parse_meeting_end_day(date_str, month_name, year)\n            if not ymd:\n                continue\n            if ymd not in seen_statement:\n                seen_statement.add(ymd)\n                dt = _yyyymmdd_to_et_afternoon(ymd, 14, 0)\n                scheduled = et_to_iso(dt)\n                events.append(CalendarEvent(\n                    event_id=make_event_id(\"fomc\", \"statement\", ymd),\n                    event_name=\"FOMC Statement / Rate Decision\", category=\"fed\",\n                    scheduled_at=scheduled, timezone=\"America/New_York\",\n                    status=status_from_schedule(scheduled, now),\n                    source_name=\"Federal Reserve FOMC Calendars\", source_url=FOMC_URL,\n                    retrieved_at=retrieved, last_updated_at=retrieved, data_quality=\"partial\",\n                    notes=\"Meeting date from official calendar table; statement HTML may not exist yet\",\n                    event_subtype=\"statement\",\n                ))\n            if ymd not in seen_press:\n                seen_press.add(ymd)\n                dt = _yyyymmdd_to_et_afternoon(ymd, 14, 30)\n                scheduled = et_to_iso(dt)\n                events.append(CalendarEvent(\n                    event_id=make_event_id(\"fomc\", \"press_conference\", ymd),\n                    event_name=\"FOMC Press Conference\", category=\"fed\",\n                    scheduled_at=scheduled, timezone=\"America/New_York\",\n                    status=status_from_schedule(scheduled, now),\n                    source_name=\"Federal Reserve FOMC Calendars\", source_url=FOMC_URL,\n                    retrieved_at=retrieved, last_updated_at=retrieved, data_quality=\"partial\",\n                    notes=\"Meeting date from official calendar table\",\n                    event_subtype=\"press_conference\",\n                ))\n        i += 2\n    return events\n\n\nclass FomcCalendarProvider:\n    def fetch(\n        self,\n        window_start: Optional[datetime] = None,\n        window_end: Optional[datetime] = None,\n    ) -> tuple[list[CalendarEvent], Optional[str]]:\n        now = datetime.now(timezone.utc)\n        window_start = window_start or (now - timedelta(days=21))\n        window_end = window_end or (now + timedelta(days=120))\n        try:\n            resp = requests.get(FOMC_URL, timeout=30, headers={\"User-Agent\": USER_AGENT})\n            resp.raise_for_status()\n            all_ev = parse_fomc_html(resp.text, now=now)\n        except Exception as e:\n            return [], f\"FOMC calendar: {type(e).__name__}: {e}\"\n        out = []\n        for ev in all_ev:\n            if not ev.scheduled_at:\n                continue\n            dt = datetime.fromisoformat(ev.scheduled_at)\n            if window_start <= dt.astimezone(timezone.utc) <= window_end:\n                out.append(ev)\n        return out, None\n
+"""Fed FOMC calendar parser (v0.9)."""
+from __future__ import annotations
+import re
+from datetime import datetime, timezone, timedelta
+from typing import Optional
+import requests
+from .calendar_common import CalendarEvent, ET, et_to_iso, make_event_id, status_from_schedule
+
+FOMC_URL = "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+USER_AGENT = "gold-macro-monitor/0.9 (research; +https://github.com/bym0122/gold-macro-monitor)"
+BASE = "https://www.federalreserve.gov"
+MONTH_MAP = {
+    "january": 1, "february": 2, "march": 3, "april": 4,
+    "may": 5, "june": 6, "july": 7, "august": 8,
+    "september": 9, "october": 10, "november": 11, "december": 12,
+}
+
+def _ymd_et(ymd: str, hour: int = 14, minute: int = 0) -> datetime:
+    return datetime(int(ymd[0:4]), int(ymd[4:6]), int(ymd[6:8]), hour, minute, tzinfo=ET)
+
+def _parse_end_day(date_str: str, month_name: str, year: int) -> Optional[str]:
+    if not date_str or not month_name:
+        return None
+    m = MONTH_MAP.get(month_name.strip().lower())
+    if not m:
+        return None
+    cleaned = date_str.replace("*", "").strip()
+    if "notation" in cleaned.lower():
+        return None
+    parts = re.split(r"[-–]", cleaned)
+    try:
+        day = int(re.sub(r"[^\d]", "", parts[-1]))
+    except ValueError:
+        return None
+    return f"{year:04d}{m:02d}{day:02d}"
+
+def parse_fomc_html(html: str, now: Optional[datetime] = None) -> list[CalendarEvent]:
+    now = now or datetime.now(timezone.utc)
+    retrieved = now.isoformat()
+    events: list[CalendarEvent] = []
+    seen_s: set[str] = set()
+    seen_p: set[str] = set()
+
+    for ymd in sorted(set(re.findall(r"/newsevents/pressreleases/monetary(20\d{6})a\.htm", html))):
+        seen_s.add(ymd)
+        sched = et_to_iso(_ymd_et(ymd, 14, 0))
+        events.append(CalendarEvent(
+            event_id=make_event_id("fomc", "statement", ymd),
+            event_name="FOMC Statement / Rate Decision", category="fed",
+            scheduled_at=sched, timezone="America/New_York",
+            status=status_from_schedule(sched, now),
+            source_name="Federal Reserve FOMC Calendars",
+            source_url=f"{BASE}/newsevents/pressreleases/monetary{ymd}a.htm",
+            retrieved_at=retrieved, last_updated_at=retrieved,
+            data_quality="official", event_subtype="statement",
+        ))
+
+    for ymd in sorted(set(re.findall(r"/monetarypolicy/fomcpres+conf(20\d{6})\.htm", html, re.I))):
+        seen_p.add(ymd)
+        sched = et_to_iso(_ymd_et(ymd, 14, 30))
+        events.append(CalendarEvent(
+            event_id=make_event_id("fomc", "press_conference", ymd),
+            event_name="FOMC Press Conference", category="fed",
+            scheduled_at=sched, timezone="America/New_York",
+            status=status_from_schedule(sched, now),
+            source_name="Federal Reserve FOMC Calendars",
+            source_url=f"{BASE}/monetarypolicy/fomcpresconf{ymd}.htm",
+            retrieved_at=retrieved, last_updated_at=retrieved,
+            data_quality="official", event_subtype="press_conference",
+        ))
+
+    for ymd in sorted(set(re.findall(r"/monetarypolicy/fomcminutes(20\d{6})(?:\.htm|/)", html))):
+        approx = _ymd_et(ymd, 14, 0) + timedelta(days=21)
+        while approx.weekday() != 2:
+            approx += timedelta(days=1)
+        sched = et_to_iso(approx.replace(hour=14, minute=0))
+        events.append(CalendarEvent(
+            event_id=make_event_id("fomc", "minutes", ymd),
+            event_name="FOMC Meeting Minutes", category="fed",
+            scheduled_at=sched, timezone="America/New_York",
+            status=status_from_schedule(sched, now),
+            source_name="Federal Reserve FOMC Calendars",
+            source_url=f"{BASE}/monetarypolicy/fomcminutes{ymd}.htm",
+            retrieved_at=retrieved, last_updated_at=retrieved,
+            data_quality="partial", event_subtype="minutes",
+            reference_period=f"meeting_end_{ymd}",
+        ))
+
+    # FIX: year header is <h4><a id=...>2026 FOMC Meetings</a></h4>
+    year_blocks = re.split(
+        r"(?i)<h4[^>]*>\s*(?:<a[^>]*>)?\s*(\d{4})\s+FOMC\s+Meetings",
+        html,
+    )
+    i = 1
+    while i + 1 < len(year_blocks):
+        try:
+            year = int(year_blocks[i].strip())
+        except ValueError:
+            i += 2
+            continue
+        body = year_blocks[i + 1]
+        months = re.findall(
+            r"fomc-meeting__month[^>]*>\s*<strong>\s*([A-Za-z]+)\s*</strong>",
+            body, flags=re.I,
+        )
+        dates = re.findall(r"fomc-meeting__date[^>]*>\s*([^<]+)", body, flags=re.I)
+        for month_name, date_str in zip(months, dates):
+            ymd = _parse_end_day(date_str, month_name, year)
+            if not ymd:
+                continue
+            if ymd not in seen_s:
+                seen_s.add(ymd)
+                sched = et_to_iso(_ymd_et(ymd, 14, 0))
+                events.append(CalendarEvent(
+                    event_id=make_event_id("fomc", "statement", ymd),
+                    event_name="FOMC Statement / Rate Decision", category="fed",
+                    scheduled_at=sched, timezone="America/New_York",
+                    status=status_from_schedule(sched, now),
+                    source_name="Federal Reserve FOMC Calendars", source_url=FOMC_URL,
+                    retrieved_at=retrieved, last_updated_at=retrieved,
+                    data_quality="partial", event_subtype="statement",
+                    notes=f"Table {month_name} {date_str.strip()} {year}",
+                ))
+            if ymd not in seen_p:
+                seen_p.add(ymd)
+                sched = et_to_iso(_ymd_et(ymd, 14, 30))
+                events.append(CalendarEvent(
+                    event_id=make_event_id("fomc", "press_conference", ymd),
+                    event_name="FOMC Press Conference", category="fed",
+                    scheduled_at=sched, timezone="America/New_York",
+                    status=status_from_schedule(sched, now),
+                    source_name="Federal Reserve FOMC Calendars", source_url=FOMC_URL,
+                    retrieved_at=retrieved, last_updated_at=retrieved,
+                    data_quality="partial", event_subtype="press_conference",
+                ))
+        i += 2
+    return events
+
+class FomcCalendarProvider:
+    def fetch(self, window_start=None, window_end=None):
+        now = datetime.now(timezone.utc)
+        window_start = window_start or (now - timedelta(days=21))
+        window_end = window_end or (now + timedelta(days=120))
+        try:
+            resp = requests.get(FOMC_URL, timeout=30, headers={"User-Agent": USER_AGENT})
+            resp.raise_for_status()
+            all_ev = parse_fomc_html(resp.text, now=now)
+        except Exception as e:
+            return [], f"FOMC calendar: {type(e).__name__}: {e}"
+        out = []
+        for ev in all_ev:
+            if not ev.scheduled_at:
+                continue
+            dt = datetime.fromisoformat(ev.scheduled_at)
+            if window_start <= dt.astimezone(timezone.utc) <= window_end:
+                out.append(ev)
+        return out, None
