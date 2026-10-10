@@ -86,10 +86,17 @@ def _render_calendar_section(calendar_payload: dict[str, Any] | None, report_dat
         f"- 未来 7 天：**{stats.get('upcoming_7d_count', '—')}**",
         f"- 近 14 天：**{stats.get('recent_14d_count', '—')}**",
         f"- 来源成功：{', '.join(dq.get('sources_ok') or []) or '—'}",
+        f"- 来源部分成功：{', '.join(dq.get('sources_partial') or []) or '无'}",
         f"- 来源失败：{', '.join(dq.get('sources_failed') or []) or '无'}",
         f"- 完整 JSON：[`{cal_path}`](../{cal_path})",
         "",
     ]
+    detail = dq.get("source_detail") or stats.get("source_detail") or {}
+    if detail:
+        lines.append("### 来源明细")
+        for k, v in detail.items():
+            lines.append(f"- **{k}**: {v}")
+        lines.append("")
     errors = stats.get("errors") or []
     if errors:
         lines.append("### 采集错误 / 降级")
@@ -194,10 +201,18 @@ def _news_quality_block(
         f"- Google News 跳转 URL：**{redirect_n}**",
         f"- 单源上限：{news_stats.get('per_feed_cap', '—')}",
         f"- **可能截断**：{'是 — ' + ', '.join(str(x) for x in trunc_feeds) if trunc_any else '否'}",
+        f"- 失败 Feed：{', '.join(str(x) for x in failed) if failed else '无'}",
         "",
         "**以上数字仅描述采集覆盖，不是独立事件数，也不代表市场重要性。**",
         "",
     ]
+    ft = full_text if full_text is not None else 0
+    if ft == 0:
+        lines.append(
+            "> **本次只有 RSS 摘要，没有获取到全文。** "
+            "请勿将 RSS 摘要当作全文正文使用。"
+        )
+        lines.append("")
     if feeds:
         lines.append("### 各 Feed 拉取计数")
         for f in feeds:

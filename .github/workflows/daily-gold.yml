@@ -86,3 +86,60 @@ jobs:
           echo "- FRED_API_KEY set: ${{ secrets.FRED_API_KEY != '' }}" >> $GITHUB_STEP_SUMMARY
           ls -la reports/ 2>/dev/null | tail -5 >> $GITHUB_STEP_SUMMARY || true
           ls -la data/news/ 2>/dev/null | tail -5 >> $GITHUB_STEP_SUMMARY || true
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Calendar source_detail" >> $GITHUB_STEP_SUMMARY
+          python3 - <<'PY' >> $GITHUB_STEP_SUMMARY
+          import json, glob
+          files = sorted(glob.glob("data/calendar/*.json"))
+          if not files:
+              print("(no calendar json)")
+          else:
+              p = json.load(open(files[-1], encoding="utf-8"))
+              dq = p.get("data_quality") or {}
+              stats = p.get("collection_stats") or {}
+              detail = dq.get("source_detail") or stats.get("source_detail") or {}
+              print(f"- file: {files[-1]}")
+              print(f"- sources_ok: {dq.get('sources_ok')}")
+              print(f"- sources_partial: {dq.get('sources_partial')}")
+              print(f"- sources_failed: {dq.get('sources_failed')}")
+              for k, v in detail.items():
+                  print(f"- {k}: {v}")
+              errs = stats.get("errors") or []
+              if errs:
+                  print("- errors:")
+                  for e in errs:
+                      print(f"  - {e}")
+          PY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### News quality" >> $GITHUB_STEP_SUMMARY
+          python3 - <<'PY' >> $GITHUB_STEP_SUMMARY
+          import json, glob
+          files = sorted(glob.glob("data/news/*.json"))
+          if not files:
+              print("(no news json)")
+          else:
+              p = json.load(open(files[-1], encoding="utf-8"))
+              st = p.get("collection_stats") or p.get("stats") or {}
+              arts = p.get("articles") or []
+              raw = st.get("raw_count", st.get("raw_fetched"))
+              dropped = st.get("duplicates_dropped", st.get("exact_dupes_dropped"))
+              after = st.get("after_deterministic_dedupe", len(arts))
+              full = st.get("full_text_count", st.get("full_text_available"))
+              if full is None:
+                  full = sum(1 for a in arts if a.get("content_status") in ("full_text", "full_text_available"))
+              rss = st.get("rss_summary_only")
+              if rss is None:
+                  rss = sum(1 for a in arts if a.get("content_status") == "rss_summary_only")
+              print(f"- file: {files[-1]}")
+              print(f"- raw: {raw} | deduped: {after} | dropped: {dropped}")
+              print(f"- rss_summary_only: {rss} | full_text: {full}")
+              if full == 0:
+                  print("- NOTE: 本次只有 RSS 摘要，没有获取到全文")
+              feeds = st.get("feeds") or []
+              trunc = [f.get("feed") for f in feeds if f.get("possible_truncation")]
+              failed = [f"{f.get('feed')}: {f.get('error')}" for f in feeds if f.get("error")]
+              if trunc:
+                  print(f"- possible_truncation: {trunc}")
+              if failed:
+                  print(f"- failed_feeds: {failed}")
+          PY
