@@ -1,2 +1,2 @@
 as_of_month,global_holdings_tonnes,global_flow_usd_mn,notes
-2026-09,4256,9952,example row from public WGC commentary Sep-2026; replace with official download
+2026-09,4256,10000,"Official WGC September 2026 public commentary published 2026-10-07; holdings 4,256t (+67t m/m) as of 2026-09-30. Flow is rounded from the public statement 'US$10bn'; exact XLSX download returned HTTP 403 and was not verified. Do not treat 10000 as an exact flow value or as a daily flow."
