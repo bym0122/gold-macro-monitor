@@ -1,0 +1,352 @@
+{
+  "schema_version": "daily_v0.9",
+  "run_id": "20aa74f2",
+  "report_date": "2026-10-30",
+  "generated_at_utc": "2026-10-30T01:08:53.660163+00:00",
+  "metrics": [
+    {
+      "metric": "us_10y_real_yield",
+      "value": 2.67,
+      "unit": "percent",
+      "source": "FRED",
+      "source_url": "https://fred.stlouisfed.org/series/DFII10",
+      "observation_date": "2026-10-28",
+      "fetched_at_utc": "2026-10-30T01:08:26.884477+00:00",
+      "status": "ok",
+      "notes": ""
+    },
+    {
+      "metric": "us_10y_nominal_yield",
+      "value": 5.05,
+      "unit": "percent",
+      "source": "FRED",
+      "source_url": "https://fred.stlouisfed.org/series/DGS10",
+      "observation_date": "2026-10-28",
+      "fetched_at_utc": "2026-10-30T01:08:27.108990+00:00",
+      "status": "ok",
+      "notes": ""
+    },
+    {
+      "metric": "us_10y_breakeven_inflation",
+      "value": 2.35,
+      "unit": "percent",
+      "source": "FRED",
+      "source_url": "https://fred.stlouisfed.org/series/T10YIE",
+      "observation_date": "2026-10-29",
+      "fetched_at_utc": "2026-10-30T01:08:27.367026+00:00",
+      "status": "ok",
+      "notes": ""
+    },
+    {
+      "metric": "gold_xauusd",
+      "value": 4013.65,
+      "unit": "USD/oz",
+      "source": "goldprice.dev",
+      "source_url": "https://api.goldprice.dev/v1/prices?symbol=XAU-USD-SPOT",
+      "observation_date": "2026-10-30",
+      "fetched_at_utc": "2026-10-30T01:08:27.367057+00:00",
+      "status": "ok",
+      "notes": "contract_type=spot; computed_at=2026-10-30T00:53:01.206477+00:00"
+    },
+    {
+      "metric": "etf_159934_close",
+      "value": 8.593,
+      "unit": "CNY",
+      "source": "Yahoo Finance",
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/159934.SZ?interval=1d&range=5d",
+      "observation_date": "2026-10-29",
+      "fetched_at_utc": "2026-10-30T01:08:27.721779+00:00",
+      "status": "ok",
+      "notes": "exchange last/close; not fund NAV"
+    },
+    {
+      "metric": "etf_159934_change_pct",
+      "value": -0.035,
+      "unit": "percent",
+      "source": "Yahoo Finance",
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/159934.SZ?interval=1d&range=5d",
+      "observation_date": "2026-10-29",
+      "fetched_at_utc": "2026-10-30T01:08:27.721779+00:00",
+      "status": "ok",
+      "notes": "regularMarketChangePercent"
+    },
+    {
+      "metric": "usd_cny",
+      "value": 6.6513,
+      "unit": "CNY per USD",
+      "source": "Yahoo Finance",
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/CNY=X?interval=1d&range=5d",
+      "observation_date": "2026-10-30",
+      "fetched_at_utc": "2026-10-30T01:08:27.917236+00:00",
+      "status": "ok",
+      "notes": "CNY=X last; offshore-ish FX quote via Yahoo"
+    },
+    {
+      "metric": "dxy",
+      "value": 101.725,
+      "unit": "index",
+      "source": "Yahoo Finance DX-Y.NYB",
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?interval=1d&range=5d",
+      "observation_date": "2026-10-30",
+      "fetched_at_utc": "2026-10-30T01:08:28.093080+00:00",
+      "status": "ok",
+      "notes": "ICE US Dollar Index futures quote via Yahoo"
+    },
+    {
+      "metric": "dxy_change_pct",
+      "value": -0.23048254217340078,
+      "unit": "percent",
+      "source": "Yahoo Finance DX-Y.NYB",
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?interval=1d&range=5d",
+      "observation_date": "2026-10-30",
+      "fetched_at_utc": "2026-10-30T01:08:28.093080+00:00",
+      "status": "ok",
+      "notes": "vs chartPreviousClose=101.96"
+    },
+    {
+      "metric": "cot_gold_open_interest",
+      "value": 402279.0,
+      "unit": "contracts",
+      "source": "CFTC via futuresbench",
+      "source_url": "https://futuresbench.com/data/cot/gold.csv",
+      "observation_date": "2026-10-20",
+      "fetched_at_utc": "2026-10-30T01:08:28.240993+00:00",
+      "status": "ok",
+      "notes": "positions as-of 2026-10-20; weekly COT; not same-day"
+    },
+    {
+      "metric": "cot_gold_net_noncommercial",
+      "value": 199865.0,
+      "unit": "contracts",
+      "source": "CFTC via futuresbench",
+      "source_url": "https://futuresbench.com/data/cot/gold.csv",
+      "observation_date": "2026-10-20",
+      "fetched_at_utc": "2026-10-30T01:08:28.240993+00:00",
+      "status": "ok",
+      "notes": "positions as-of 2026-10-20; weekly COT; not same-day"
+    },
+    {
+      "metric": "cot_gold_net_commercial",
+      "value": -235582.0,
+      "unit": "contracts",
+      "source": "CFTC via futuresbench",
+      "source_url": "https://futuresbench.com/data/cot/gold.csv",
+      "observation_date": "2026-10-20",
+      "fetched_at_utc": "2026-10-30T01:08:28.240993+00:00",
+      "status": "ok",
+      "notes": "positions as-of 2026-10-20; weekly COT; not same-day"
+    },
+    {
+      "metric": "wgc_global_etf_holdings_t",
+      "value": null,
+      "unit": "tonnes",
+      "source": "WGC",
+      "source_url": "https://www.gold.org/goldhub/data/gold-etfs-holdings-and-flows",
+      "observation_date": null,
+      "fetched_at_utc": "2026-10-30T01:08:28.546493+00:00",
+      "status": "missing",
+      "notes": "暂无最新 WGC 自动数据；WGC 非每日硬依赖。勿将上月流量解释为今日流入。门户: https://www.gold.org/goldhub/data/gold-etfs-holdings-and-flows"
+    },
+    {
+      "metric": "wgc_global_etf_flow_usd_mn",
+      "value": null,
+      "unit": "USD million",
+      "source": "WGC",
+      "source_url": "https://www.gold.org/goldhub/data/gold-etfs-holdings-and-flows",
+      "observation_date": null,
+      "fetched_at_utc": "2026-10-30T01:08:28.546493+00:00",
+      "status": "missing",
+      "notes": "暂无最新 WGC 自动数据；WGC 非每日硬依赖。勿将上月流量解释为今日流入。门户: https://www.gold.org/goldhub/data/gold-etfs-holdings-and-flows"
+    },
+    {
+      "metric": "us_total_public_debt",
+      "value": 40551054852362.41,
+      "unit": "USD",
+      "source": "FiscalData",
+      "source_url": "https://fiscaldata.treasury.gov/datasets/debt-to-the-penny/debt-to-the-penny",
+      "observation_date": "2026-10-28",
+      "fetched_at_utc": "2026-10-30T01:08:28.546522+00:00",
+      "status": "ok",
+      "notes": "debt_held_public=32671924859186.91; intragov=7879129993175.50"
+    },
+    {
+      "metric": "us_interest_expense_fytd",
+      "value": 1360396866366.01,
+      "unit": "USD",
+      "source": "FiscalData",
+      "source_url": "https://fiscaldata.treasury.gov/datasets/interest-expense-debt-outstanding/",
+      "observation_date": "2026-09-30",
+      "fetched_at_utc": "2026-10-30T01:08:29.031670+00:00",
+      "status": "ok",
+      "notes": "sum of fytd_expense_amt for latest record_date lines; monthly lag"
+    }
+  ],
+  "status_summary": {
+    "ok": 14,
+    "missing": 2
+  },
+  "indicators": {
+    "gold_xauusd": {
+      "history_points": 16,
+      "latest_observation_date": "2026-10-30",
+      "prior_observation_date": "2026-10-29",
+      "chg_1d_pct": -0.6202490900537234,
+      "chg_5d_pct": 0.4366648315900174,
+      "chg_1_obs_pp": null,
+      "chg_1_obs_bps": null,
+      "chg_5_obs_pp": null,
+      "chg_5_obs_bps": null,
+      "kind": "price"
+    },
+    "us_10y_real_yield": {
+      "history_points": 14,
+      "latest_observation_date": "2026-10-28",
+      "prior_observation_date": "2026-10-27",
+      "chg_1d_pct": null,
+      "chg_5d_pct": null,
+      "chg_1_obs_pp": 0.029999999999999805,
+      "chg_1_obs_bps": 2.9999999999999805,
+      "chg_5_obs_pp": -0.08999999999999986,
+      "chg_5_obs_bps": -8.999999999999986,
+      "kind": "yield"
+    },
+    "us_10y_nominal_yield": {
+      "history_points": 14,
+      "latest_observation_date": "2026-10-28",
+      "prior_observation_date": "2026-10-27",
+      "chg_1d_pct": null,
+      "chg_5d_pct": null,
+      "chg_1_obs_pp": 0.05999999999999961,
+      "chg_1_obs_bps": 5.999999999999961,
+      "chg_5_obs_pp": -0.08000000000000007,
+      "chg_5_obs_bps": -8.000000000000007,
+      "kind": "yield"
+    },
+    "us_10y_breakeven_inflation": {
+      "history_points": 14,
+      "latest_observation_date": "2026-10-29",
+      "prior_observation_date": "2026-10-28",
+      "chg_1d_pct": null,
+      "chg_5d_pct": null,
+      "chg_1_obs_pp": -0.029999999999999805,
+      "chg_1_obs_bps": -2.9999999999999805,
+      "chg_5_obs_pp": 0.03000000000000025,
+      "chg_5_obs_bps": 3.000000000000025,
+      "kind": "yield"
+    },
+    "usd_cny": {
+      "history_points": 18,
+      "latest_observation_date": "2026-10-30",
+      "prior_observation_date": "2026-10-29",
+      "chg_1d_pct": -0.21303728152426327,
+      "chg_5d_pct": -0.13962706062516353,
+      "chg_1_obs_pp": null,
+      "chg_1_obs_bps": null,
+      "chg_5_obs_pp": null,
+      "chg_5_obs_bps": null,
+      "kind": "price"
+    },
+    "dxy": {
+      "history_points": 16,
+      "latest_observation_date": "2026-10-30",
+      "prior_observation_date": "2026-10-29",
+      "chg_1d_pct": -0.5115014474610852,
+      "chg_5d_pct": -0.02653510496108285,
+      "chg_1_obs_pp": null,
+      "chg_1_obs_bps": null,
+      "chg_5_obs_pp": null,
+      "chg_5_obs_bps": null,
+      "kind": "price"
+    },
+    "etf_159934_close": {
+      "history_points": 12,
+      "latest_observation_date": "2026-10-29",
+      "prior_observation_date": "2026-10-28",
+      "chg_1d_pct": -0.034899953466730034,
+      "chg_5d_pct": -2.2189349112426067,
+      "chg_1_obs_pp": null,
+      "chg_1_obs_bps": null,
+      "chg_5_obs_pp": null,
+      "chg_5_obs_bps": null,
+      "kind": "price"
+    }
+  },
+  "news_ref": "data/news/2026-10-30.json",
+  "calendar_ref": "data/calendar/2026-10-30.json",
+  "news_collection_stats": {
+    "lookback_hours": 24,
+    "per_feed_cap": 80,
+    "feeds": [
+      {
+        "feed": "GN-Gold",
+        "search_topic": "gold_etf_central_banks",
+        "fetched": 80,
+        "possible_truncation": true,
+        "error": null
+      },
+      {
+        "feed": "GN-FedMacro",
+        "search_topic": "fed_macro_yields_dollar",
+        "fetched": 80,
+        "possible_truncation": true,
+        "error": null
+      },
+      {
+        "feed": "GN-NFP",
+        "search_topic": "us_nfp_employment",
+        "fetched": 9,
+        "possible_truncation": false,
+        "error": null
+      },
+      {
+        "feed": "GN-CPI-PPI",
+        "search_topic": "us_cpi_ppi",
+        "fetched": 51,
+        "possible_truncation": false,
+        "error": null
+      },
+      {
+        "feed": "GN-PCE-FOMC",
+        "search_topic": "us_pce_fomc",
+        "fetched": 64,
+        "possible_truncation": false,
+        "error": null
+      },
+      {
+        "feed": "GN-IranHormuz",
+        "search_topic": "iran_hormuz_red_sea",
+        "fetched": 80,
+        "possible_truncation": true,
+        "error": null
+      }
+    ],
+    "raw_count": 364,
+    "after_deterministic_dedupe": 357,
+    "duplicates_dropped": 7,
+    "possible_truncation_any": true,
+    "fetched_at_utc": "2026-10-30T01:08:50.957432+00:00"
+  },
+  "calendar_stats": {
+    "new_fetched": 32,
+    "merged_total": 98,
+    "upcoming_7d_count": 1,
+    "recent_14d_count": 19,
+    "errors": [
+      "BLS ICS: HTTP 403 Forbidden (https://www.bls.gov/schedule/news_release/bls.ics); BLS HTML: HTTP 403 (https://www.bls.gov/schedule/2026/09_sched_list.htm); BLS HTML: HTTP 403 (https://www.bls.gov/schedule/2026/10_sched_list.htm); BLS HTML: HTTP 403 (https://www.bls.gov/schedule/2026/11_sched_list.htm)",
+      "CME gold calendar: ReadTimeout: HTTPSConnectionPool(host='www.cmegroup.com', port=443): Read timed out. (read timeout=20)"
+    ],
+    "source_detail": {
+      "bls": "partial | BLS ICS: HTTP 403 Forbidden (https://www.bls.gov/schedule/news_release/bls.ics); BLS HTML: HTTP 403 (https://www.bls.gov/schedule/2026/09_sched_list.htm); BLS HTML: HTTP 403 (https://www.bls.gov/schedule/2026/10_sched_list.htm); BLS HTML: HTTP 403 (https://www.bls.gov/schedule/2026/11_sched_list.htm)",
+      "bea": "ok | empty",
+      "fomc": "ok",
+      "market_structure": "partial | CME gold calendar: ReadTimeout: HTTPSConnectionPool(host='www.cmegroup.com', port=443): Read timed out. (read timeout=20)"
+    },
+    "core_sources_warning": "One or more calendar sources failed or partial; see errors / source_detail",
+    "note": "Official schedules only. actual/previous/consensus are null unless a future release-value parser is added. Future FOMC meetings use scheduled_date with time_status=unverified (no invented clock time). market_structure may be partial when CME/Treasury soft-fail while rules succeed."
+  },
+  "data_quality_notes": [],
+  "version": "0.9.0",
+  "analysis": null,
+  "explanations": null,
+  "events": null
+}
