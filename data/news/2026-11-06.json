@@ -1,0 +1,60 @@
+{
+  "schema_version": "news_v1",
+  "report_date": "2026-11-06",
+  "generated_at_utc": "2026-11-06T06:44:18.987185+00:00",
+  "run_id": "bb4946f5",
+  "articles": [],
+  "collection_stats": {
+    "lookback_hours": 24,
+    "per_feed_cap": 80,
+    "feeds": [
+      {
+        "feed": "GN-Gold",
+        "search_topic": "gold_etf_central_banks",
+        "fetched": 0,
+        "possible_truncation": false,
+        "error": "HTTPError: 503 Server Error: Service Unavailable for url: https://news.google.com/rss/search?q=gold+price+OR+XAU+OR+%22gold+ETF%22+OR+%22central+bank+gold%22+when:1d&hl=en-US&gl=US&ceid=US:en"
+      },
+      {
+        "feed": "GN-FedMacro",
+        "search_topic": "fed_macro_yields_dollar",
+        "fetched": 0,
+        "possible_truncation": false,
+        "error": "HTTPError: 503 Server Error: Service Unavailable for url: https://news.google.com/rss/search?q=Fed+OR+FOMC+OR+Powell+OR+%22real+yield%22+OR+CPI+OR+PCE+OR+Treasury+OR+DXY+when:1d&hl=en-US&gl=US&ceid=US:en"
+      },
+      {
+        "feed": "GN-NFP",
+        "search_topic": "us_nfp_employment",
+        "fetched": 0,
+        "possible_truncation": false,
+        "error": "HTTPError: 503 Server Error: Service Unavailable for url: https://news.google.com/rss/search?q=%22nonfarm+payrolls%22+OR+NFP+OR+%22Employment+Situation%22+OR+%22average+hourly+earnings%22+when:1d&hl=en-US&gl=US&ceid=US:en"
+      },
+      {
+        "feed": "GN-CPI-PPI",
+        "search_topic": "us_cpi_ppi",
+        "fetched": 0,
+        "possible_truncation": false,
+        "error": "HTTPError: 503 Server Error: Service Unavailable for url: https://news.google.com/rss/search?q=%22Consumer+Price+Index%22+OR+%22Core+CPI%22+OR+%22Producer+Price+Index%22+OR+%22Core+PPI%22+when:1d&hl=en-US&gl=US&ceid=US:en"
+      },
+      {
+        "feed": "GN-PCE-FOMC",
+        "search_topic": "us_pce_fomc",
+        "fetched": 0,
+        "possible_truncation": false,
+        "error": "HTTPError: 503 Server Error: Service Unavailable for url: https://news.google.com/rss/search?q=%22Personal+Consumption%22+OR+%22Core+PCE%22+OR+%22FOMC+minutes%22+OR+%22Fed+rate+decision%22+when:1d&hl=en-US&gl=US&ceid=US:en"
+      },
+      {
+        "feed": "GN-IranHormuz",
+        "search_topic": "iran_hormuz_red_sea",
+        "fetched": 0,
+        "possible_truncation": false,
+        "error": "HTTPError: 503 Server Error: Service Unavailable for url: https://news.google.com/rss/search?q=(Iran+OR+Hormuz+OR+%22Red+Sea%22)+(%22oil+price%22+OR+shipping+OR+tanker+OR+Houthi)+when:1d&hl=en-US&gl=US&ceid=US:en"
+      }
+    ],
+    "raw_count": 0,
+    "after_deterministic_dedupe": 0,
+    "duplicates_dropped": 0,
+    "possible_truncation_any": false,
+    "fetched_at_utc": "2026-11-06T06:43:35.076033+00:00"
+  }
+}
